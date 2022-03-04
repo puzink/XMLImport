@@ -7,10 +7,10 @@ import java.nio.charset.StandardCharsets;
 
 public class XMLFileParser implements AutoCloseable{
 
-    private File file;
-    private BufferedReader buffIn;
-    private XMLUnit root = null;
-    private XMLUnit currentUnit = null;
+    private final File file;
+    private final BufferedReader buffIn;
+
+    private final NodesBranch branch = new NodesBranch();
 
     public XMLFileParser(File file) throws FileNotFoundException {
         this.file = file;
@@ -20,72 +20,73 @@ public class XMLFileParser implements AutoCloseable{
         buffIn =new BufferedReader(Channels.newReader(channel, StandardCharsets.UTF_8));
     }
 
-    public XMLUnit findNextNode() throws IOException{
-        String elemNameWithAttributes = findNextElement();
-        if(checkElementClose(elemNameWithAttributes)){
-            XMLUnit prev = currentUnit.getPrev();
-            currentUnit.setPrev(null);
-            currentUnit = prev;
+    public Node findNextNode() throws IOException{
+        Element element = findNextElement();
+        if(checkElementClose(element)){
+            branch.removeLast();
             return findNextNode();
         }
 
-        if(root == null){
-            root = new XMLUnit(null, elemNameWithAttributes.toString());
-            currentUnit = root;
-        } else {
-            currentUnit = new XMLUnit(currentUnit, elemNameWithAttributes.toString());
-        }
-        return currentUnit;
+        Node newNode = new Node(branch.getTailNode(), element);
+        branch.push(newNode);
+        return newNode;
     }
 
-    public XMLUnit loadUnit(XMLUnit unit){
-
-
-        return unit;
+    private Element findNextElement() throws IOException {
+        readCharsBeforeElement();
+        return new Element(readElement());
     }
 
-    public String findNextElement() throws IOException {
+    private void readCharsBeforeElement() throws IOException {
         int c;
         while((c = readChar()) != '<'){
-            if(currentUnit != null){
-                currentUnit.appendIntoBody(c);
+            char ch = (char) c;
+            if(branch.isEmpty() && !String.valueOf(ch).isBlank()){
+                throw new IllegalArgumentException("Unexpected symbol occurs.");
             }
+
+            if(String.valueOf(ch).isBlank()
+                    && branch.getTailNode().isBodyEmpty()){
+                continue;
+            }
+            branch.appendIntoBody(ch);
         }
-        StringBuilder elementAttributes = new StringBuilder();
+    }
+
+    private String readElement() throws IOException {
+        StringBuilder element = new StringBuilder();
+        int c;
         while((c = readChar()) != '>'){
             if(c == -1){
-                throw new IllegalArgumentException("XML closed before end");
+                throw new IllegalArgumentException("File closed before the end of XML.");
             }
-            elementAttributes.append(c);
+            element.append((char) c);
         }
-
-        return elementAttributes.toString();
+        return element.toString();
     }
 
-
-    private boolean checkElementClose(String elementAttributes) {
-        if(elementAttributes.charAt(0) != '/'){
-            return false;
-        }
-        String elementName =
-                elementAttributes.substring(1)
-                .trim();
-        if(!elementName.equals(currentUnit.getName())){
-            //TODO change message and exc
-            throw new IllegalArgumentException("Error in element close.");
-        }
-        return true;
-    }
 
     private int readChar() throws IOException {
         int c = buffIn.read();
-        if(c == -1 && root != null){
+        if(c == -1 && !branch.isEmpty()){
             throw new IllegalArgumentException("XML closed before end");
         }
-        if(root == null && !String.valueOf(c).isBlank()){
-            throw new IllegalArgumentException("Unexpected symbol occurs.");
-        }
         return c;
+    }
+
+    private boolean checkElementClose(Element element) {
+        if(element.getName().charAt(0) != '/'){
+            return false;
+        }
+        String elementName =
+                element.getName().substring(1)
+                        .trim();
+        if(branch.isEmpty() ||
+                !elementName.equals(branch.getTailNode().getName())){
+            //TODO change message and exc
+            throw new IllegalArgumentException("The end of an element before close.");
+        }
+        return true;
     }
 
     @Override

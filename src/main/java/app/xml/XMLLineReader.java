@@ -1,11 +1,12 @@
 package app.xml;
 
 import app.model.Line;
+import app.xml.exception.XmlParseException;
+import app.xml.exception.XmlTagParseException;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 public class XMLLineReader {
 
@@ -13,12 +14,12 @@ public class XMLLineReader {
     private Node lineNode = null;
     private Node tableNode = null;
 
-    public XMLLineReader(XMLFileParser xmlParser) throws IOException {
+    public XMLLineReader(XMLFileParser xmlParser) throws IOException, XmlParseException {
         this.xmlParser = xmlParser;
         readTableElement();
     }
 
-    public Line readLine() throws IOException {
+    public Line readLine() throws IOException, XmlParseException {
         if(tableNode == null){
             readTableElement();
         }
@@ -28,7 +29,7 @@ public class XMLLineReader {
         if(lineNode == null){
             return null;
         }
-        if(!lineNode.getElement().getName().equals("line")){
+        if(!lineNode.getTag().getName().equals("line")){
             throw new IllegalArgumentException("A non-line element was encountered in the table");
         }
 
@@ -53,25 +54,25 @@ public class XMLLineReader {
         return null;
     }
 
-    private void readTableElement() throws IOException {
+    private void readTableElement() throws IOException, XmlParseException {
         if(!xmlParser.hasNextNode()){
             throw new IllegalArgumentException("File is empty");
         }
         Node node = xmlParser.getNextNode();
-        if(!node.getElement().getName().equals("table")){
+        if(!node.getTag().getName().equals("table")){
             throw new IllegalArgumentException("XML does not start with table element.");
         }
         tableNode = node;
     }
 
-    private void closeLineAndFindNext() throws IOException {
+    private void closeLineAndFindNext() throws IOException, XmlParseException {
         Node node = xmlParser.getNextNode();
 //        while(node != null && node.getParent())
     }
 
     private boolean isNestedLine(Node cell) {
         return cell.getParent() == lineNode
-                && cell.getElement().getName().equals("line");
+                && cell.getTag().getName().equals("line");
     }
 
     private boolean startNewLine(Node cell) {

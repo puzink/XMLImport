@@ -27,4 +27,15 @@ public class Attribute {
     public String toString(){
         return String.format("%s=\"%s\"", name, value);
     }
+
+    public boolean equals(Object o){
+        if(o == null){
+            return false;
+        }
+        if(o.getClass() != this.getClass()){
+            return false;
+        }
+        Attribute other = (Attribute) o;
+        return other.getName().equals(this.name) && other.getValue().equals(this.value);
+    }
 }

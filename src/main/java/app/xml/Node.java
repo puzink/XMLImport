@@ -5,29 +5,25 @@ import lombok.Setter;
 
 @Getter
 public class Node {
-    private final Element element;
+    private final Tag tag;
     private final StringBuilder body;
     @Setter
     private NodeStatus status = NodeStatus.CLOSED;
     private final Node parent;
 
-    public Node(Node parent, Element element, NodeStatus status){
-        this(parent, element);
+    public Node(Node parent, Tag tag, NodeStatus status){
+        this(parent, tag);
         this.status = status;
     }
-
-//    public Node(Node parent, String element) {
-//        this(parent, new Element(element));
-//    }
-
-    public Node(Node parent, Element element){
+    
+    public Node(Node parent, Tag tag){
         this.parent = parent;
-        this.element = element;
+        this.tag = tag;
         body = new StringBuilder();
     }
 
     public String getName(){
-        return element.getName();
+        return tag.getName();
     }
 
     public void appendIntoBody(char c){
@@ -35,7 +31,7 @@ public class Node {
     }
 
     public String toString(){
-        return String.format("Name:%s, elem = '%s', body='%s'", element.getName(), element, body.toString());
+        return String.format("Name:%s, elem = '%s', body='%s'", tag.getName(), tag, body.toString());
     }
 
     public boolean isBodyEmpty() {

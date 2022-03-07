@@ -1,5 +1,7 @@
 package app.xml;
 
+import app.xml.exception.XmlParseException;
+
 import java.io.*;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
@@ -9,13 +11,15 @@ public class XMLFileParser implements AutoCloseable{
 
     private final File file;
     private final BufferedReader buffIn;
+    private XmlTagParser tagParser;
 
     private final NodePath nodePath = new NodePath();
+    private boolean rootTagIsFound = false;
     private Node nextNode = null;
-    private boolean mainElementIsFound = false;
 
-    public XMLFileParser(File file) throws IOException {
+    public XMLFileParser(File file, XmlTagParser tagParser) throws IOException{
         this.file = file;
+        this.tagParser = tagParser;
 
         FileInputStream fileInput = new FileInputStream(file);
         FileChannel channel =fileInput.getChannel();
@@ -39,22 +43,26 @@ public class XMLFileParser implements AutoCloseable{
         return nextNode != null;
     }
 
-    private Node findNextNode() throws IOException {
-        Element element = getNextElement();
-        if(checkElementClose(element)){
+    private Node findNextNode() throws IOException{
+        Tag tag = getNextElement();
+        if(rootTagIsFound && nextNode == null){
+            throw new XmlParseException("Multiply root tags.");
+        }
+        if(checkElementClose(tag)){
             nodePath.getTailNode().setStatus(NodeStatus.CLOSED);
             nodePath.removeLast();
             return findNextNode();
         }
 
-        Node newNode = new Node(nodePath.getTailNode(), element, NodeStatus.OPENED);
+        Node newNode = new Node(nodePath.getTailNode(), tag, NodeStatus.OPENED);
         nodePath.add(newNode);
         return newNode;
     }
 
-    private Element getNextElement() throws IOException {
+    private Tag getNextElement() throws IOException {
         readCharsBeforeNextElement();
-        return new Element(readElement());
+        String elem = readElement();
+        return tagParser.parseTag(elem);
     }
 
     private void readCharsBeforeNextElement() throws IOException {
@@ -62,7 +70,7 @@ public class XMLFileParser implements AutoCloseable{
         while((c = readChar()) != '<'){
             char ch = (char) c;
             if(nodePath.isEmpty() && !Character.isWhitespace(ch)){
-                throw new IllegalArgumentException("Unexpected symbol occurs.");
+                throw new XmlParseException("Unexpected symbol occurs.");
             }
 
             if(!nodePath.isEmpty()
@@ -77,11 +85,11 @@ public class XMLFileParser implements AutoCloseable{
         int c;
         while((c = readChar()) != '>'){
             if(c == -1){
-                throw new IllegalArgumentException("Unexpected file end.");
+                throw new XmlParseException("Unexpected file end.");
             }
             char ch = (char) c;
             if(ch == '<'){
-                throw new IllegalArgumentException("Double open tag.");
+                throw new XmlParseException("Double open tag.");
             }
             element.append(ch);
         }
@@ -91,27 +99,25 @@ public class XMLFileParser implements AutoCloseable{
 
     private int readChar() throws IOException {
         int c = buffIn.read();
-        if(c == -1 && !mainElementIsFound){
-            throw new IllegalArgumentException("File is empty.");
+        if(c == -1 && !rootTagIsFound){
+            throw new XmlParseException("File is empty.");
         }
         //TODO fixme
         if(c == -1 && !nodePath.isEmpty()){
-            throw new IllegalArgumentException("XML closed before end");
+            throw new XmlParseException("Xml file closed before end.");
         }
-//        if()
         return c;
     }
 
-    private boolean checkElementClose(Element element) {
-        if(element.getType() != ElementType.CLOSE){
+    private boolean checkElementClose(Tag tag) throws XmlParseException {
+        if(tag.getType() != TagType.CLOSE){
             return false;
         }
-        String elementName =
-                element.getName().trim();
+        String tagName = tag.getName().trim();
         if(nodePath.isEmpty() ||
-                !elementName.equals(nodePath.getTailNode().getName())){
+                !tagName.equals(nodePath.getTailNode().getName())){
             //TODO change message and exc
-            throw new IllegalArgumentException("The end of an element before close.");
+            throw new XmlParseException("Close tag before the open one.");
         }
         return true;
     }

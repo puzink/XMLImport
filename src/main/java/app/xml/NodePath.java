@@ -2,7 +2,7 @@ package app.xml;
 
 import java.util.LinkedList;
 
-public class NodesBranch extends LinkedList<Node>{
+public class NodePath extends LinkedList<Node>{
 
     public Node getTailNode(){
         if(isEmpty()){

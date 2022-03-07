@@ -10,46 +10,65 @@ public class XMLFileParser implements AutoCloseable{
     private final File file;
     private final BufferedReader buffIn;
 
-    private final NodesBranch branch = new NodesBranch();
+    private final NodePath nodePath = new NodePath();
+    private Node nextNode = null;
+    private boolean mainElementIsFound = false;
 
-    public XMLFileParser(File file) throws FileNotFoundException {
+    public XMLFileParser(File file) throws IOException {
         this.file = file;
 
         FileInputStream fileInput = new FileInputStream(file);
         FileChannel channel =fileInput.getChannel();
-        buffIn =new BufferedReader(Channels.newReader(channel, StandardCharsets.UTF_8));
+        buffIn = new BufferedReader(Channels.newReader(channel, StandardCharsets.UTF_8));
+
+        nextNode = findNextNode();
     }
 
-    public Node findNextNode() throws IOException{
-        Element element = findNextElement();
+    public Node getNextNode() throws IOException{
+        if(!hasNextNode()){
+            throw new IllegalArgumentException("There is no more nodes in the file.");
+        }
+
+        Node currentNode = nextNode;
+        nextNode = findNextNode();
+        return currentNode;
+
+    }
+
+    public boolean hasNextNode() {
+        return nextNode != null;
+    }
+
+    private Node findNextNode() throws IOException {
+        Element element = getNextElement();
         if(checkElementClose(element)){
-            branch.removeLast();
+            nodePath.getTailNode().setStatus(NodeStatus.CLOSED);
+            nodePath.removeLast();
             return findNextNode();
         }
 
-        Node newNode = new Node(branch.getTailNode(), element);
-        branch.push(newNode);
+        Node newNode = new Node(nodePath.getTailNode(), element, NodeStatus.OPENED);
+        nodePath.add(newNode);
         return newNode;
     }
 
-    private Element findNextElement() throws IOException {
-        readCharsBeforeElement();
+    private Element getNextElement() throws IOException {
+        readCharsBeforeNextElement();
         return new Element(readElement());
     }
 
-    private void readCharsBeforeElement() throws IOException {
+    private void readCharsBeforeNextElement() throws IOException {
         int c;
         while((c = readChar()) != '<'){
             char ch = (char) c;
-            if(branch.isEmpty() && !String.valueOf(ch).isBlank()){
+            if(nodePath.isEmpty() && !Character.isWhitespace(ch)){
                 throw new IllegalArgumentException("Unexpected symbol occurs.");
             }
 
-            if(String.valueOf(ch).isBlank()
-                    && branch.getTailNode().isBodyEmpty()){
-                continue;
+            if(!nodePath.isEmpty()
+                    && !nodePath.getTailNode().isBodyEmpty()){
+                nodePath.appendIntoBody(ch);
             }
-            branch.appendIntoBody(ch);
         }
     }
 
@@ -58,9 +77,13 @@ public class XMLFileParser implements AutoCloseable{
         int c;
         while((c = readChar()) != '>'){
             if(c == -1){
-                throw new IllegalArgumentException("File closed before the end of XML.");
+                throw new IllegalArgumentException("Unexpected file end.");
             }
-            element.append((char) c);
+            char ch = (char) c;
+            if(ch == '<'){
+                throw new IllegalArgumentException("Double open tag.");
+            }
+            element.append(ch);
         }
         return element.toString();
     }
@@ -68,21 +91,25 @@ public class XMLFileParser implements AutoCloseable{
 
     private int readChar() throws IOException {
         int c = buffIn.read();
-        if(c == -1 && !branch.isEmpty()){
+        if(c == -1 && !mainElementIsFound){
+            throw new IllegalArgumentException("File is empty.");
+        }
+        //TODO fixme
+        if(c == -1 && !nodePath.isEmpty()){
             throw new IllegalArgumentException("XML closed before end");
         }
+//        if()
         return c;
     }
 
     private boolean checkElementClose(Element element) {
-        if(element.getName().charAt(0) != '/'){
+        if(element.getType() != ElementType.CLOSE){
             return false;
         }
         String elementName =
-                element.getName().substring(1)
-                        .trim();
-        if(branch.isEmpty() ||
-                !elementName.equals(branch.getTailNode().getName())){
+                element.getName().trim();
+        if(nodePath.isEmpty() ||
+                !elementName.equals(nodePath.getTailNode().getName())){
             //TODO change message and exc
             throw new IllegalArgumentException("The end of an element before close.");
         }

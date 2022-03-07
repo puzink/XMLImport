@@ -1,19 +1,27 @@
 package app.xml;
 
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 public class Node {
     private final Element element;
     private final StringBuilder body;
-    private final Node prev;
+    @Setter
+    private NodeStatus status = NodeStatus.CLOSED;
+    private final Node parent;
 
-    public Node(Node prev, String element) {
-        this(prev, new Element(element));
+    public Node(Node parent, Element element, NodeStatus status){
+        this(parent, element);
+        this.status = status;
     }
 
-    public Node(Node prev, Element element){
-        this.prev = prev;
+//    public Node(Node parent, String element) {
+//        this(parent, new Element(element));
+//    }
+
+    public Node(Node parent, Element element){
+        this.parent = parent;
         this.element = element;
         body = new StringBuilder();
     }
@@ -32,5 +40,13 @@ public class Node {
 
     public boolean isBodyEmpty() {
         return body.length() == 0;
+    }
+
+    public String getText(){
+        return body.toString();
+    }
+
+    public boolean isOpened() {
+        return status == NodeStatus.OPENED;
     }
 }

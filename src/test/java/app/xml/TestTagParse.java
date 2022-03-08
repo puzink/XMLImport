@@ -12,29 +12,9 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
-//???????
 public class TestTagParse {
 
-    private ClassLoader classLoader = TestParseNotValidExamples.class.getClassLoader();
-    private String notValidXmlsDirectory = "xmls/withErrors/";
     private XmlTagParser tagParser = new XmlTagParserImpl();
-
-    private List<Node> readAllNodes(File xml) throws IOException, XmlParseException {
-        try(XMLFileParser parser = new XMLFileParser(xml, tagParser)) {
-            List<Node> res = new ArrayList<>();
-            Node node;
-            while (parser.hasNextNode()) {
-                node = parser.getNextNode();
-                res.add(node);
-            }
-            return res;
-        }
-    }
-
-    private File getXmlFileForName(String fileName) throws URISyntaxException {;
-        URI testDirectory = classLoader.getResource("").toURI();
-        return new File(testDirectory.resolve(notValidXmlsDirectory).resolve(fileName));
-    }
 
     @Test
     public void testInvalidAttributeNames(){

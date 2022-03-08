@@ -1,14 +1,6 @@
 package app.service;
 
 import app.jdbc.DAO;
-import app.model.Line;
-import app.xml.XMLFileParser;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
 
 public class Service {
 

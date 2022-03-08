@@ -1,16 +1,21 @@
 package app.xml.exception;
 
+import app.xml.CursorPosition;
+
 import java.io.IOException;
 
 public class XmlParseException extends IOException {
-    public XmlParseException() {
+
+    //TODO add cursor logic
+    private CursorPosition position;
+
+    public XmlParseException(CursorPosition cursorPosition){
+        this(null, cursorPosition);
     }
 
-    public XmlParseException(String message) {
+    public XmlParseException(String message, CursorPosition position) {
         super(message);
+        this.position = position;
     }
 
-    public XmlParseException(Throwable cause) {
-        super(cause);
-    }
 }

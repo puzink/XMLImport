@@ -1,12 +1,11 @@
 package app.jdbc;
 
-import app.model.Line;
+import app.model.Row;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Collection;
-import java.util.List;
 
 public class DAO {
 
@@ -16,7 +15,7 @@ public class DAO {
         conn = DriverManager.getConnection(url, user, password);
     }
 
-    public int insertLines(Collection<Line> lines, String table){
+    public int insertLines(Collection<Row> rows, String table){
 
 
         return 0;

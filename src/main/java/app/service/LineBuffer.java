@@ -1,6 +1,6 @@
 package app.service;
 
-import app.model.Line;
+import app.model.Row;
 import app.xml.XMLFileParser;
 
 import java.util.ArrayList;
@@ -12,26 +12,26 @@ public class LineBuffer {
     private static final int DEFAULT_BUFFER_SIZE = 10;
 
     private final XMLFileParser xmlFileParser;
-    private List<Line> lines;
-    private Iterator<Line> iterator;
+    private List<Row> rows;
+    private Iterator<Row> iterator;
 
     public LineBuffer(XMLFileParser file){
         this.xmlFileParser = file;
-        lines = new ArrayList<>(10);
+        rows = new ArrayList<>(10);
     }
 
-    public Line getLine() {
-        if(lines == null
-                || lines.isEmpty()
+    public Row getLine() {
+        if(rows == null
+                || rows.isEmpty()
                 || !iterator.hasNext()){
             fill();
-            iterator = lines.iterator();
+            iterator = rows.iterator();
         }
         return iterator.hasNext() ? iterator.next() : null;
     }
 
     private void fill(){
-        lines = new ArrayList<>(DEFAULT_BUFFER_SIZE);
+        rows = new ArrayList<>(DEFAULT_BUFFER_SIZE);
         //TODO fill buffer
     }
 

@@ -2,9 +2,9 @@ package app.model;
 
 import java.util.Map;
 
-public class Line {
+public class Row {
 
-    public Line(Map<String, String> values){
+    public Row(Map<String, String> values){
         //FIXME
     }
 }

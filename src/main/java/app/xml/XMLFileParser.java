@@ -1,5 +1,6 @@
 package app.xml;
 
+import app.xml.exception.XMLExpectedEndOfFileException;
 import app.xml.exception.XmlParseException;
 
 import java.io.*;
@@ -16,6 +17,10 @@ public class XMLFileParser implements AutoCloseable{
     private final NodePath nodePath = new NodePath();
     private boolean rootTagIsFound = false;
     private Node nextNode = null;
+    //TODO add cursor
+    private CursorPosition cursor = new CursorPosition();
+
+    private IOException thrownException = null;
 
     public XMLFileParser(File file, XmlTagParser tagParser) throws IOException{
         this.file = file;
@@ -26,27 +31,40 @@ public class XMLFileParser implements AutoCloseable{
         buffIn = new BufferedReader(Channels.newReader(channel, StandardCharsets.UTF_8));
 
         nextNode = findNextNode();
+        rootTagIsFound = true;
     }
 
     public Node getNextNode() throws IOException{
+        if(thrownException != null){
+            throw thrownException;
+        }
         if(!hasNextNode()){
-            throw new IllegalArgumentException("There is no more nodes in the file.");
+            thrownException = new XmlParseException("There is no more nodes in the file.", cursor);
+            throw thrownException;
         }
 
         Node currentNode = nextNode;
-        nextNode = findNextNode();
+        try{
+            nextNode = findNextNode();
+        } catch (XMLExpectedEndOfFileException e){
+            nextNode = null;
+        }
         return currentNode;
 
     }
 
-    public boolean hasNextNode() {
+    public boolean hasNextNode() throws IOException {
+        if(thrownException != null){
+            throw thrownException;
+        }
         return nextNode != null;
     }
 
     private Node findNextNode() throws IOException{
-        Tag tag = getNextElement();
-        if(rootTagIsFound && nextNode == null){
-            throw new XmlParseException("Multiply root tags.");
+        Tag tag = getNextTag();
+        if(rootTagIsFound && nodePath.isEmpty()){
+            thrownException = new XmlParseException("Multiply root tags.", cursor);
+            throw thrownException;
         }
         if(checkElementClose(tag)){
             nodePath.getTailNode().setStatus(NodeStatus.CLOSED);
@@ -59,37 +77,47 @@ public class XMLFileParser implements AutoCloseable{
         return newNode;
     }
 
-    private Tag getNextElement() throws IOException {
-        readCharsBeforeNextElement();
-        String elem = readElement();
-        return tagParser.parseTag(elem);
+    private Tag getNextTag() throws IOException {
+        readCharsBeforeNextTag();
+        String tag = readTag();
+        return tagParser.parseTag(tag);
     }
 
-    private void readCharsBeforeNextElement() throws IOException {
+    private void readCharsBeforeNextTag() throws IOException {
         int c;
         while((c = readChar()) != '<'){
             char ch = (char) c;
+
+            if(nodePath.isEmpty() && rootTagIsFound && c == -1){
+                //TODO add cursor
+                throw new XMLExpectedEndOfFileException(null);
+            }
+
             if(nodePath.isEmpty() && !Character.isWhitespace(ch)){
-                throw new XmlParseException("Unexpected symbol occurs.");
+                thrownException = new XmlParseException("Unexpected symbol occurs.", cursor);
+                throw thrownException;
             }
 
             if(!nodePath.isEmpty()
-                    && !nodePath.getTailNode().isBodyEmpty()){
+                    && (!nodePath.getTailNode().isBodyEmpty()
+                    || !Character.isWhitespace(ch))){
                 nodePath.appendIntoBody(ch);
             }
         }
     }
 
-    private String readElement() throws IOException {
+    private String readTag() throws IOException {
         StringBuilder element = new StringBuilder();
         int c;
         while((c = readChar()) != '>'){
             if(c == -1){
-                throw new XmlParseException("Unexpected file end.");
+                thrownException = new XmlParseException("Unexpected file end.", cursor);
+                throw thrownException;
             }
             char ch = (char) c;
             if(ch == '<'){
-                throw new XmlParseException("Double open tag.");
+                thrownException = new XmlParseException("Double open tag.", cursor);
+                throw thrownException;
             }
             element.append(ch);
         }
@@ -100,24 +128,26 @@ public class XMLFileParser implements AutoCloseable{
     private int readChar() throws IOException {
         int c = buffIn.read();
         if(c == -1 && !rootTagIsFound){
-            throw new XmlParseException("File is empty.");
+            thrownException = new XmlParseException("File is empty.", cursor);
+            throw thrownException;
         }
-        //TODO fixme
         if(c == -1 && !nodePath.isEmpty()){
-            throw new XmlParseException("Xml file closed before end.");
+            thrownException = new XmlParseException("Xml file closed before end.", cursor);
+            throw thrownException;
         }
+
         return c;
     }
 
-    private boolean checkElementClose(Tag tag) throws XmlParseException {
+    private boolean checkElementClose(Tag tag) throws IOException {
         if(tag.getType() != TagType.CLOSE){
             return false;
         }
         String tagName = tag.getName().trim();
         if(nodePath.isEmpty() ||
                 !tagName.equals(nodePath.getTailNode().getName())){
-            //TODO change message and exc
-            throw new XmlParseException("Close tag before the open one.");
+            thrownException = new XmlParseException("Close tag before the open one.", cursor);
+            throw thrownException;
         }
         return true;
     }

@@ -4,6 +4,7 @@ import app.xml.exception.XmlTagParseException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 public class XmlTagParserImpl implements XmlTagParser {
 
@@ -11,7 +12,7 @@ public class XmlTagParserImpl implements XmlTagParser {
     public Tag parseTag(String str) throws XmlTagParseException {
         checkTagEmpty(str);
         String name = parseName(str);
-        int attributeStart = name.length() + (hasSpecialSymbol(str,0) ? 1 : 0);
+        int attributeStart = str.indexOf(name) + name.length();
         List<Attribute> attributes = parseAttributes(str.substring(attributeStart));
         TagType type = parseType(str);
         return new Tag(name, attributes, type);
@@ -25,11 +26,11 @@ public class XmlTagParserImpl implements XmlTagParser {
         if(nameStart > 0){
             throw new XmlTagParseException("Whitespaces before tag name.");
         }
+        if (hasSpecialSymbol(str, nameStart)) {
+            nameStart = findFirstNotWhitespaceChar(str, nameStart + 1);
+        }
         if(nameStart < 0){
             throw new XmlTagParseException("Tag name is not found.");
-        }
-        if (hasSpecialSymbol(str, nameStart)) {
-            nameStart++;
         }
         int nameEnd = findWhitespace(str, nameStart + 1);
         nameEnd = (nameEnd < 0) ? str.length() : nameEnd;
@@ -111,6 +112,18 @@ public class XmlTagParserImpl implements XmlTagParser {
             }
         }
     }
+
+//    private int findChar(Predicate<Character> predicate, int from, String str){
+//        if(from >= str.length()){
+//            return -1;
+//        }
+//        for(int i = from;i < str.length();++i){
+//            if(predicate.test(str.charAt(i))){
+//                return i;
+//            }
+//        }
+//        return -1;
+//    }
 
 
     private int findFirstNotWhitespaceChar(String str, int from){

@@ -202,4 +202,16 @@ public class TestParseNotValidExamples {
                 "Name must contain digits and letters only."
         );
     }
+
+    @Test
+    public void testAttributeValueWithSingleQuotes() throws URISyntaxException {
+        String xmlName = "value_with_single_quotes.xml";
+        File xml = getXmlFileForName(xmlName);
+
+        Assertions.assertThrows(
+                XmlTagParseException.class,
+                () -> readAllNodes(xml),
+                "Attribute value must be enclosed in double quotes."
+        );
+    }
 }

@@ -3,6 +3,8 @@ package app.xml;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Objects;
+
 @Getter
 public class Node {
     private final Tag tag;
@@ -29,6 +31,9 @@ public class Node {
     public void appendIntoBody(char c){
         body.append(c);
     }
+    public void appendIntoBody(String s){
+        body.append(s);
+    }
 
     public String toString(){
         return String.format("Name:%s, elem = '%s', body='%s'", tag.getName(), tag, body.toString());
@@ -44,5 +49,19 @@ public class Node {
 
     public boolean isOpened() {
         return status == NodeStatus.OPENED;
+    }
+
+    public boolean equals(Object o){
+        if(o == null){
+            return false;
+        }
+        if(o.getClass() != this.getClass()){
+            return false;
+        }
+        Node other = (Node) o;
+        return Objects.equals(other.getParent(), parent)
+                && Objects.equals(body.toString(), other.getBody().toString())
+                && Objects.equals(tag, other.getTag());
+
     }
 }

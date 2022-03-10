@@ -1,7 +1,7 @@
 package app.service;
 
 import app.model.Row;
-import app.xml.XMLFileParser;
+import app.xml.XmlParserImpl;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -11,11 +11,11 @@ public class LineBuffer {
 
     private static final int DEFAULT_BUFFER_SIZE = 10;
 
-    private final XMLFileParser xmlFileParser;
+    private final XmlParserImpl xmlFileParser;
     private List<Row> rows;
     private Iterator<Row> iterator;
 
-    public LineBuffer(XMLFileParser file){
+    public LineBuffer(XmlParserImpl file){
         this.xmlFileParser = file;
         rows = new ArrayList<>(10);
     }

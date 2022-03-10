@@ -4,6 +4,8 @@ import app.xml.CursorPosition;
 
 import java.io.IOException;
 
+
+//TODO refactor
 public class XmlParseException extends IOException {
 
     //TODO add cursor logic

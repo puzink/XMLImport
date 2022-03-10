@@ -1,0 +1,8 @@
+<table name = "persons">
+	<person>
+		<passportNumber>3452</passportNumber>
+		<passportSerial>324543</passportSerial>
+		<name>Oleg</name>
+		<city>Moscow</city>
+	</person>
+</table>

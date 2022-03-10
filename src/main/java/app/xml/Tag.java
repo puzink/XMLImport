@@ -3,6 +3,7 @@ package app.xml;
 import lombok.Getter;
 
 //import java.lang.annotation.ElementType;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -11,7 +12,7 @@ import java.util.stream.Collectors;
 public class Tag {
 
     private String name;
-    private List<Attribute> attributes;
+    private List<Attribute> attributes = new ArrayList<>();
     private TagType type;
 
     public Tag(String name, List<Attribute> attributes, TagType type) {
@@ -36,6 +37,9 @@ public class Tag {
             return false;
         }
         Tag other = (Tag) o;
+        if(Objects.equals(attributes, other.attributes)){
+            return true;
+        }
         if(other.attributes.size() != this.attributes.size()){
             return false;
         }

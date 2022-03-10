@@ -18,8 +18,8 @@ public class TestParseNotValidExamples {
     private String notValidXmlsDirectory = "xmls/withErrors/";
     private XmlTagParser tagParser = new XmlTagParserImpl();
 
-    private List<Node> readAllNodes(File xml) throws IOException, XmlParseException {
-        try(XMLFileParser parser = new XMLFileParser(xml, tagParser)) {
+    private List<Node> readAllNodes(File xml) throws IOException{
+        try(XmlParserImpl parser = new XmlParserImpl(xml, tagParser)) {
             List<Node> res = new ArrayList<>();
             Node node;
             while (parser.hasNextNode()) {
@@ -36,7 +36,7 @@ public class TestParseNotValidExamples {
     }
 
     @Test
-    public void testDoubleOpenTag() throws IOException, URISyntaxException {
+    public void testDoubleOpenTag() throws URISyntaxException {
         String xmlName = "double_open_tag.xml";
         File xml = getXmlFileForName(xmlName);
 

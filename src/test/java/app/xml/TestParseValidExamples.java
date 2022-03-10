@@ -1,7 +1,6 @@
 package app.xml;
 
 import app.xml.exception.XmlParseException;
-import app.xml.exception.XmlTagParseException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -18,8 +17,8 @@ public class TestParseValidExamples {
     private String validXmlsDirectory = "xmls/valids/";
     private XmlTagParser tagParser = new XmlTagParserImpl();
 
-    private List<Node> readAllNodes(File xml) throws IOException {
-        try(XMLFileParser parser = new XMLFileParser(xml, tagParser)) {
+    private List<Node> readAllNodes(File xml) throws IOException{
+        try(XmlParserImpl parser = new XmlParserImpl(xml, tagParser)) {
             List<Node> res = new ArrayList<>();
             Node node;
             while (parser.hasNextNode()) {
@@ -36,7 +35,7 @@ public class TestParseValidExamples {
     }
 
     @Test
-    public void testValidTest() throws IOException, URISyntaxException {
+    public void testValidTest() throws IOException, URISyntaxException{
         File xml = getXmlFileForName("double_close_tag.xml");
 
         Node table = new Node(null, new Tag("table",List.of(),TagType.OPEN));
@@ -58,7 +57,7 @@ public class TestParseValidExamples {
     }
 
     @Test
-    public void testSpacesAfterLineInCloseTag() throws IOException, URISyntaxException {
+    public void testSpacesAfterLineInCloseTag() throws IOException, URISyntaxException{
         File xml = getXmlFileForName("spaces_after_line_in_close_tag.xml");
 
         Node table = new Node(
@@ -82,7 +81,7 @@ public class TestParseValidExamples {
     }
 
     @Test
-    public void testSeveralRows() throws URISyntaxException, IOException {
+    public void testSeveralRows() throws URISyntaxException, IOException{
         File xml = getXmlFileForName("several_rows.xml");
 
         Node table = new Node(

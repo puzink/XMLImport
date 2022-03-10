@@ -1,6 +1,7 @@
 package app.xml;
 
-import app.xml.exception.XMLExpectedEndOfFileException;
+import app.xml.exception.XmlExpectedEndOfFileException;
+import app.xml.exception.XmlNoMoreNodesException;
 import app.xml.exception.XmlParseException;
 
 import java.io.*;
@@ -8,7 +9,7 @@ import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 
-public class XMLFileParser implements AutoCloseable{
+public class XmlParserImpl implements XmlParser, AutoCloseable{
 
     private final File file;
     private final BufferedReader buffIn;
@@ -22,7 +23,7 @@ public class XMLFileParser implements AutoCloseable{
 
     private IOException thrownException = null;
 
-    public XMLFileParser(File file, XmlTagParser tagParser) throws IOException{
+    public XmlParserImpl(File file, XmlTagParser tagParser) throws IOException{
         this.file = file;
         this.tagParser = tagParser;
 
@@ -34,26 +35,32 @@ public class XMLFileParser implements AutoCloseable{
         rootTagIsFound = true;
     }
 
+    @Override
     public Node getNextNode() throws IOException{
         if(thrownException != null){
             throw thrownException;
         }
         if(!hasNextNode()){
-            thrownException = new XmlParseException("There is no more nodes in the file.", cursor);
+            thrownException = new XmlNoMoreNodesException("There is no more nodes in the file.", cursor);
             throw thrownException;
         }
 
         Node currentNode = nextNode;
         try{
             nextNode = findNextNode();
-        } catch (XMLExpectedEndOfFileException e){
+        } catch (XmlExpectedEndOfFileException e){
             nextNode = null;
         }
         return currentNode;
 
     }
 
+    @Override
     public boolean hasNextNode() throws IOException {
+        if(thrownException instanceof XmlNoMoreNodesException
+                || thrownException instanceof XmlExpectedEndOfFileException){
+            return false;
+        }
         if(thrownException != null){
             throw thrownException;
         }
@@ -90,7 +97,7 @@ public class XMLFileParser implements AutoCloseable{
 
             if(nodePath.isEmpty() && rootTagIsFound && c == -1){
                 //TODO add cursor
-                throw new XMLExpectedEndOfFileException(null);
+                throw new XmlExpectedEndOfFileException(null);
             }
 
             if(nodePath.isEmpty() && !Character.isWhitespace(ch)){

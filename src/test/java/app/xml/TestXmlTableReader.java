@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-public class TestTableRowsReader {
+public class TestXmlTableReader {
 
     @Test
     public void testReadRows() throws IOException{
@@ -28,7 +28,7 @@ public class TestTableRowsReader {
 
         XmlParser parser = new ListParser(nodes);
 
-        TableReader tableReader = new TableRowsReader(parser);
+        TableReader tableReader = new XmlTableReader(parser);
         Row expectedRow = new Row(Map.of("id","243", "name", "Oleg"));
         Row expectedRow2 = new Row(Map.of("city","New-York", "phone", "8534891"));
 
@@ -47,7 +47,7 @@ public class TestTableRowsReader {
 
         XmlParser parser = new ListParser(nodes);
 
-        TableReader tableReader = new TableRowsReader(parser);
+        TableReader tableReader = new XmlTableReader(parser);
 
         Assertions.assertThrows(IllegalArgumentException.class,
                 tableReader::readRow,

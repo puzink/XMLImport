@@ -2,11 +2,17 @@ package app.xml;
 
 import lombok.Getter;
 
+import java.util.function.Predicate;
+
 @Getter
 public class Attribute {
 
     private String name;
     private String value;
+
+    public static Predicate<Attribute> filterByName(String name){
+        return (attr) -> attr.name.equals(name);
+    }
 
     public Attribute(String name, String value) {
         validateName(name);

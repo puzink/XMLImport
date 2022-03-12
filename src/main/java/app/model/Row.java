@@ -10,14 +10,14 @@ import java.util.function.Supplier;
 
 public class Row {
 
-    private Map<String, String> values;
+    private Map<String, Object> values;
 
-    public Row(Map<String, String> values){
+    public Row(Map<String, Object> values){
         this.values = values;
     }
 
     public Row(List<Node> nodes){
-        Supplier<Map<String,String>> supp = HashMap::new;
+        Supplier<Map<String,Object>> supp = HashMap::new;
         this.values = nodes.stream()
                 .collect(
                         supp,
@@ -26,8 +26,14 @@ public class Row {
                 );
     }
 
-    public Map<String, String> getValues(){
+    public Map<String, Object> getValues(){
         return values;
+    }
+
+    public Object addValue(String column, Object value){
+        Object oldValue = values.get(column);
+        values.put(column, value);
+        return oldValue != null ? oldValue : value;
     }
 
     public boolean equals(Object o){
@@ -43,5 +49,23 @@ public class Row {
 
     public String toString(){
         return "Row:" + values.toString();
+    }
+
+    public boolean containsColumn(Column column){
+        return containsColumn(column.getName());
+    }
+
+    public boolean containsColumn(String name) {
+        return values.containsKey(name);
+    }
+
+    public boolean containsColumns(List<Column> columns) {
+        return columns.stream()
+                .map(Column::getName)
+                .allMatch(this::containsColumn);
+    }
+
+    public Object get(Column col){
+        return values.get(col.getName());
     }
 }

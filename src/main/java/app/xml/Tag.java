@@ -6,6 +6,7 @@ import lombok.Getter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Getter
@@ -19,6 +20,12 @@ public class Tag {
         this.name = name;
         this.attributes = attributes;
         this.type = type;
+    }
+
+    public List<Attribute> getAttributesBy(Predicate<Attribute> predicate){
+        return attributes.stream()
+                .filter(predicate)
+                .collect(Collectors.toList());
     }
 
     public String toString() {

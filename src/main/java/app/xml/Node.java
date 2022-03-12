@@ -3,7 +3,10 @@ package app.xml;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
 import java.util.Objects;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 @Getter
 public class Node {
@@ -51,6 +54,8 @@ public class Node {
         return status == NodeStatus.OPENED;
     }
 
+
+
     public boolean equals(Object o){
         if(o == null){
             return false;
@@ -63,5 +68,9 @@ public class Node {
                 && Objects.equals(body.toString(), other.getBody().toString())
                 && Objects.equals(tag, other.getTag());
 
+    }
+
+    public boolean isClosed() {
+        return status == NodeStatus.CLOSED;
     }
 }

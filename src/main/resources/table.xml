@@ -1,0 +1,16 @@
+<table name="users2"
+       columns="name ; age "
+       unique="age">
+    <row>
+        <age>2</age>
+        <name>Oleg</name>
+    </row>
+    <row>
+        <id>3</id>
+        <name>Aby</name>
+    </row>
+    <row>
+        <name>Clara</name>
+        <age>2</age>
+    </row>
+</table>

@@ -1,24 +1,107 @@
 package app.jdbc;
 
+import app.model.Column;
+import app.model.DataType;
 import app.model.Row;
+import app.model.Table;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 public class DAO {
 
-    private Connection conn;
+    private final Connection conn;
 
     public DAO(String url, String user, String password) throws SQLException {
         conn = DriverManager.getConnection(url, user, password);
     }
 
-    public int insertLines(Collection<Row> rows, String table){
+    public DAO(Connection conn){
+        this.conn = conn;
+    }
 
+    public int insertRows(Collection<Row> rows, Table table){
 
         return 0;
     }
 
+    public List<Column> getTableColumns(String tableName) {
+
+        String query = "select column_name, data_type from information_schema.columns where table_name = ?";
+        try(PreparedStatement preparedStatement = conn.prepareStatement(query)){
+            List<Column> columns = new ArrayList<>();
+            preparedStatement.setString(1, tableName);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while(resultSet.next()){
+                String colName = resultSet.getString("column_name");
+                String strType = resultSet.getString("data_type");
+                DataType type = DataType.getBySqlType(strType)
+                                .orElseThrow(() -> new IllegalArgumentException("This data type is not supported: " + strType));
+                columns.add(new Column(colName, type));
+            }
+            return columns;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public List<Boolean> anyDuplicates(List<Row> rows, String tableName, List<Column> uniqueColumns) {
+
+        StringBuilder query = new StringBuilder()
+                .append("select case exists(select * from ").append(tableName).append(" where ");
+        List<String> columnsComparisons = new ArrayList<>();
+        for(Column uniqueCol : uniqueColumns){
+//            StringBuilder columnComparison = new StringBuilder();
+//            columnComparison.append("((").append("(").append(tableName).append(".").append(uniqueCol.getName())
+//                    .append(" is null)::integer + (? is null)::integer = 2").append(")");
+//            columnComparison.append(" or ");
+//            columnComparison.append("( ").append(tableName).append(".").append(uniqueCol.getName()).append(" = ? ").append("))");
+
+            String columnComparison = String.format("(((%s.%s is null)::integer + (? is null)::integer = 2) " +
+                    " or " +
+                    " (%s.%s = ?)) ",
+                    tableName, uniqueCol.getName(),
+                    tableName, uniqueCol.getName()
+            );
+
+            columnsComparisons.add(columnComparison);
+        }
+        query.append(String.join(" and ", columnsComparisons));
+        query.append(") when True then True else False end\n");
+        String stringQuery = query.toString();
+
+        StringBuilder generalQuery = new StringBuilder();
+        generalQuery.append(stringQuery).append("\n");
+        for(int i = 1; i < rows.size();++i){
+            generalQuery.append("union all\n");
+            generalQuery.append(stringQuery).append("\n");
+        }
+
+        try(PreparedStatement preparedStatement = conn.prepareStatement(generalQuery.toString())){
+
+            int uniqueColumnSize = uniqueColumns.size();
+            for(int i = 0; i<rows.size();++i){
+                for(int j = 0; j < uniqueColumns.size();++j){
+                    Column col = uniqueColumns.get(j);
+                    preparedStatement.setObject((i*uniqueColumnSize + j) * 2 + 1, rows.get(i).get(col));
+                    preparedStatement.setObject((i*uniqueColumnSize + j) * 2 + 2, rows.get(i).get(col));
+                }
+            }
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            List<Boolean> result = new ArrayList<>();
+            while(resultSet.next()){
+                result.add(resultSet.getBoolean(1));
+            }
+            return result;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
 }

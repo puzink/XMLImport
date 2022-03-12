@@ -73,7 +73,7 @@ public class XmlParserImpl implements XmlParser, AutoCloseable{
             thrownException = new XmlParseException("Multiply root tags.", cursor);
             throw thrownException;
         }
-        if(checkElementClose(tag)){
+        if(checkTagClose(tag)){
             nodePath.getTailNode().setStatus(NodeStatus.CLOSED);
             nodePath.removeLast();
             return findNextNode();
@@ -146,7 +146,7 @@ public class XmlParserImpl implements XmlParser, AutoCloseable{
         return c;
     }
 
-    private boolean checkElementClose(Tag tag) throws IOException {
+    private boolean checkTagClose(Tag tag) throws IOException {
         if(tag.getType() != TagType.CLOSE){
             return false;
         }

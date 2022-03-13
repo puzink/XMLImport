@@ -27,16 +27,18 @@ public class Main {
     }
 
 
-    public static void main(String[] args) throws SQLException, URISyntaxException, IOException {
+    public static void main(String[] args) throws Exception {
         DAO dao = new DAO(getConnection());
+//        File file = new File("C:\\Users\\puzink\\Documents\\testImporter\\" + "biTableWithItems.txt");
         File file = getFile();
-        XmlParser parser = new XmlParserImpl(file, new XmlTagParserImpl());
-        TableReader tableReader = new XmlTableReader(parser);
+        try(XmlParser parser = new XmlParserImpl(file, new XmlTagParserImpl())){
+            XmlTableReader tableReader = new XmlTableReader(parser);
+            Service service = new Service(dao, tableReader);
+            long start = System.nanoTime();
+            System.out.println(service.importRows());
+            System.out.println("Time = " + (System.nanoTime() - start));
+        }
 
-        Service service = new Service(dao, tableReader);
-
-        System.out.println(service.importRows());
-        System.out.println();
 
     }
 }

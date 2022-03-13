@@ -59,18 +59,12 @@ public class XmlTableReader implements TableReader{
 
         List<Node> nestedNodesInRow = new ArrayList<>();
         Node cell = null;
-        //FIXME вложенные и дублирующие ноды
         while(currentRowNode.isOpened()){
             if(!xmlParser.hasNextNode()){
                 currentRowNode = null;
                 break;
             }
             cell = xmlParser.getNextNode();
-//            if(startNewRow(cell)){
-//                prevRowNode = currentRowNode;
-//                currentRowNode = cell;
-//                return new Row(nestedNodesInRow);
-//            }
             nestedNodesInRow.add(cell);
         }
 
@@ -88,7 +82,4 @@ public class XmlTableReader implements TableReader{
         return node;
     }
 
-//    private boolean startNewRow(Node cell) {
-//        return cell.getParent() != currentRowNode && cell.getName().equals(ROW_TAG_NAME);
-//    }
 }

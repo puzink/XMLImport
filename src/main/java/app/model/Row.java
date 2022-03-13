@@ -36,6 +36,7 @@ public class Row {
         return oldValue != null ? oldValue : value;
     }
 
+    @Override
     public boolean equals(Object o){
         if(o == null){
             return false;
@@ -47,8 +48,14 @@ public class Row {
         return Objects.equals(values, other.values);
     }
 
+    @Override
     public String toString(){
         return "Row:" + values.toString();
+    }
+
+    @Override
+    public int hashCode(){
+        return values.hashCode();
     }
 
     public boolean containsColumn(Column column){
@@ -67,5 +74,15 @@ public class Row {
 
     public Object get(Column col){
         return values.get(col.getName());
+    }
+
+    public Row projectOnto(List<Column> columns){
+        Map<String, Object> projectionValues = new HashMap<>();
+        for(Column col : columns){
+            if(containsColumn(col)){
+                projectionValues.put(col.getName(), get(col));
+            }
+        }
+        return new Row(projectionValues);
     }
 }

@@ -4,6 +4,6 @@ public class ToIntegerConverter extends AbstractConverter<Integer> {
 
     @Override
     public Integer convertNotNullString(String s) {
-        return Integer.valueOf(s);
+        return Integer.valueOf(s.trim());
     }
 }

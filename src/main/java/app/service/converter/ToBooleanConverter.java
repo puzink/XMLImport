@@ -7,7 +7,7 @@ public class ToBooleanConverter extends AbstractConverter<Boolean>{
             return true;
         }
         if(s.trim().equalsIgnoreCase("false")){
-            return true;
+            return false;
         }
         throw new ClassCastException(
                 String.format("Cannot convert string '%s' to the boolean type.", s)

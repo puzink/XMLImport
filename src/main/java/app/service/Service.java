@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 public class Service {
 
-    private static final int DEFAULT_ROW_COUNT = 100;
+    private static final int DEFAULT_ROW_COUNT = 50;
     private static final String UNIQUE_ATTRIBUTE = "unique";
     private static final String COLUMNS_ATTRIBUTE = "columns";
     private static final String NAME_ATTRIBUTE = "name";
@@ -33,30 +33,46 @@ public class Service {
         TableDto tableDto = readTable();
         List<Row> rows = readRows(DEFAULT_ROW_COUNT, tableDto);
         long insertedRows = 0;
+        long readRows = 0;
         while(!rows.isEmpty()){
-            convertValues(rows, tableDto.getTable().getColumns());
+            readRows += rows.size();
+            rows = convertValues(rows, tableDto.getTable().getColumns());
             rows = removeDuplicates(rows, tableDto.getTable().getName(), tableDto.getUniqueColumns());
-            insertedRows += dao.insertRows(rows, tableDto.getTable());
+            insertedRows +=
+                    dao.insertRows(rows, tableDto.getColumnsForInsert(), tableDto.getTable().getName());
 
+            System.out.println("Read rows = " + readRows);
             rows = readRows(DEFAULT_ROW_COUNT, tableDto);
         }
-
 
         return insertedRows;
     }
 
-    private void convertValues(List<Row> rows, List<Column> tableColumns) {
+    private List<Row> convertValues(List<Row> rows, List<Column> tableColumns) {
+        List<Row> result = new ArrayList<>();
         for(Row row : rows){
-            for(Column column : tableColumns){
-                if(row.containsColumn(column)){
-                    String stringValue = (String) row.get(column);
-                    Object convertedValue = ConverterFactory.getFactory()
-                            .getRightConverter(column.getType())
-                            .convert(stringValue);
-                    row.addValue(column.getName(), convertedValue);
-                }
+            try{
+                Row convertedRow = convertRowValues(row, tableColumns);
+                result.add(convertRowValues(row, tableColumns));
+            } catch (Exception e){
+                System.out.println(e.getMessage());
             }
         }
+        return result;
+    }
+
+    private Row convertRowValues(Row row, List<Column> tableColumns){
+        Map<String, Object> convertedValues = new HashMap<>();
+        for(Column column : tableColumns){
+            if(row.containsColumn(column)){
+                String stringValue = (String) row.get(column);
+                Object convertedValue = ConverterFactory.getFactory()
+                        .getRightConverter(column.getType())
+                        .convert(stringValue);
+                convertedValues.put(column.getName(), convertedValue);
+            }
+        }
+        return new Row(convertedValues);
     }
 
 
@@ -76,23 +92,6 @@ public class Service {
         }
         return rows;
     }
-
-//    private void compareRowColumnsWithTable(List<Row> rows, Table table) {
-//        for(Row row : rows){
-//            Map<String, Object> values = row.getValues();
-//            Optional<String> notExistedColumn = values.keySet().stream()
-//                    .filter((colName) -> !table.containsColumn(colName))
-//                    .findAny();
-//            if(notExistedColumn.isPresent()){
-//                throw new IllegalArgumentException(
-//                        String.format("Row has a column '%s' that does not exist in the table(%s). ",
-//                                notExistedColumn.get(),
-//                                table.getName()
-//                        )
-//                );
-//            }
-//        }
-//    }
 
     //TODO rename
     private TableDto readTable() throws IOException {
@@ -118,14 +117,18 @@ public class Service {
         }
 
         List<Row> result = new ArrayList<>();
-        List<Boolean> isRowDuplicate =
-                dao.anyDuplicates(rows, tableName, uniqueColumns);
+        List<Boolean> isRowDuplicateInTable =
+                dao.hasDuplicate(rows, tableName, uniqueColumns);
+        Set<Row> rowsToInsert = new HashSet<>();
         for(int i = 0; i<rows.size();++i){
-            if(!isRowDuplicate.get(i)){
+            Row rowProjection = rows.get(i).projectOnto(uniqueColumns);
+            if(!isRowDuplicateInTable.get(i)
+                    && !rowsToInsert.contains(rowProjection)){
                 result.add(rows.get(i));
+                rowsToInsert.add(rowProjection);
             }
         }
-        //TODO delete duplicate rows in the list
+
         return result;
     }
 

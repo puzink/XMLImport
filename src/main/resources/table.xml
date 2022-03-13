@@ -13,4 +13,18 @@
         <name>Clara</name>
         <age>2</age>
     </row>
+
+    <row>
+        <name>Den</name>
+        <age>15</age>
+    </row>
+    <row>
+        <name>Elly</name>
+        <age>   20  </age>
+    </row>
+
+    <row>
+        <name>George</name>
+        <age>20</age>
+    </row>
 </table>

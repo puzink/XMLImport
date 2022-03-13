@@ -28,4 +28,9 @@ public class ListParser implements XmlParser {
         }
         return it.next();
     }
+
+    @Override
+    public void close() throws Exception {
+        throw new UnsupportedOperationException("Cannot close list.");
+    }
 }

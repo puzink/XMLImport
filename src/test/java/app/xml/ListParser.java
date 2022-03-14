@@ -56,7 +56,7 @@ public class ListParser implements XmlParser {
         }
         Node node = new Node(nodePath.getTailNode(), nextElement, NodeStatus.OPENED);
         node.appendIntoBody(nodeBodiesIterator.next());
-        nodePath.add(node);
+        nodePath = nodePath.addNode(node);
         nodeCount--;
         return node;
     }
@@ -69,7 +69,7 @@ public class ListParser implements XmlParser {
             throw new XmlParseException("Close element name does not coincide with the current node one.");
         }
         nodePath.getTailNode().setStatus(NodeStatus.CLOSED);
-        nodePath.removeLast();
+        nodePath = nodePath.removeLast();
         return true;
     }
 

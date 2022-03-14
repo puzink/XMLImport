@@ -30,18 +30,6 @@ public class TestXmlTableReader {
 
         List<String> nodeBodies = List.of("","","243","Oleg","","New-York","8534891");
 
-//        Node table = new Node(null, new Element("table",null, ElementType.OPEN),NodeStatus.OPENED);
-//        Node row1 = new Node(table, new Element("row",null, ElementType.OPEN),NodeStatus.OPENED);
-//        Node id = new Node(row1, new Element("id",null, ElementType.OPEN),NodeStatus.OPENED);
-//        id.appendIntoBody("243");
-//        Node name = new Node(row1, new Element("name",null, ElementType.OPEN),NodeStatus.OPENED);
-//        name.appendIntoBody("Oleg");
-//        Node row2 = new Node(table, new Element("row",null, ElementType.OPEN),NodeStatus.OPENED);
-//        Node city = new Node(row2, new Element("city",null, ElementType.OPEN),NodeStatus.OPENED);
-//        city.appendIntoBody("New-York");
-//        Node phone = new Node(row2, new Element("phone",null, ElementType.OPEN),NodeStatus.OPENED);
-//        phone.appendIntoBody("8534891");
-
         List<Element> elements = List.of(tableOpen, row1Open, idOpen, idClose, nameOpen, nameClose, row1Close,
                 row2Open, cityOpen, cityClose, phoneOpen, phoneClose, row2Close, tableClose);
 
@@ -60,14 +48,11 @@ public class TestXmlTableReader {
 
     @Test
     public void testReadNotRowNode() throws IOException{
-//        Node table = new Node(null, new Element("table",null, ElementType.OPEN),NodeStatus.OPENED);
-//        Node id = new Node(table, new Element("id",null, ElementType.OPEN),NodeStatus.OPENED);
-//        List<Node> nodes = List.of(table, id);
 
         Element tableOpen = new Element("table", new ArrayList<>(), ElementType.OPEN);
         Element idOpen = new Element("id", new ArrayList<>(), ElementType.OPEN);
 
-        XmlParser parser = new ListParser(List.of(tableOpen, idOpen), List.of());
+        XmlParser parser = new ListParser(List.of(tableOpen, idOpen), List.of("",""));
 
         TableReader tableReader = new XmlTableReader(parser);
 

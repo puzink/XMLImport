@@ -41,7 +41,7 @@ public class XmlPartParser implements XmlParser{
     /**
      * Последовательность открытых узлов(текущая ветвь дерева).
      */
-    private final NodePath nodePath = new NodePath();
+    private NodePath nodePath = new NodePath();
     /**
      * Флаг: true - найден ли корневой узел дерева.
      * Он необходим для определения наличия нескольких корневых узлов в файле и их отсутствия(пустой файл).
@@ -126,12 +126,12 @@ public class XmlPartParser implements XmlParser{
         }
         if(checkNodeClose(element)){
             nodePath.getTailNode().setStatus(NodeStatus.CLOSED);
-            nodePath.removeLast();
+            nodePath = nodePath.removeLast();
             return findNextNode();
         }
 
         Node newNode = new Node(nodePath.getTailNode(), element, NodeStatus.OPENED);
-        nodePath.add(newNode);
+        nodePath = nodePath.addNode(newNode);
         return newNode;
     }
 

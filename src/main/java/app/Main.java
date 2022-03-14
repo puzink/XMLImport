@@ -5,7 +5,6 @@ import app.service.Service;
 import app.xml.*;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.Connection;
@@ -29,9 +28,9 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
         DAO dao = new DAO(getConnection());
-//        File file = new File("C:\\Users\\puzink\\Documents\\testImporter\\" + "biTableWithItems.txt");
-        File file = getFile();
-        try(XmlParser parser = new XmlParserImpl(file, new XmlTagParserImpl())){
+        File file = new File("C:\\Users\\puzink\\Documents\\testImporter\\" + "tableWith20Rows.txt");
+//        File file = getFile();
+        try(XmlParser parser = new XmlPartParser(file, new XmlElementParserImpl())){
             XmlTableReader tableReader = new XmlTableReader(parser);
             Service service = new Service(dao, tableReader);
             long start = System.nanoTime();

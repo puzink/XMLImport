@@ -11,6 +11,10 @@ public class XmlParseException extends IOException {
     //TODO add cursor logic
     private CursorPosition position;
 
+    public XmlParseException(String message){
+        super(message);
+    }
+
     public XmlParseException(CursorPosition cursorPosition){
         this(null, cursorPosition);
     }

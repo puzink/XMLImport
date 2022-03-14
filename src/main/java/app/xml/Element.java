@@ -10,13 +10,13 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Getter
-public class Tag {
+public class Element {
 
     private String name;
     private List<Attribute> attributes = new ArrayList<>();
-    private TagType type;
+    private ElementType type;
 
-    public Tag(String name, List<Attribute> attributes, TagType type) {
+    public Element(String name, List<Attribute> attributes, ElementType type) {
         this.name = name;
         this.attributes = attributes;
         this.type = type;
@@ -43,7 +43,7 @@ public class Tag {
         if(o.getClass() != this.getClass()){
             return false;
         }
-        Tag other = (Tag) o;
+        Element other = (Element) o;
         if(Objects.equals(attributes, other.attributes)){
             return true;
         }

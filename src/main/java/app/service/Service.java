@@ -97,14 +97,14 @@ public class Service {
     private TableDto readTable() throws IOException {
         Node tableNode = tableReader.getTable();
         checkAttributesCount(tableNode);
-        String tableName = tableNode.getTag().getAttributesBy(Attribute.filterByName(NAME_ATTRIBUTE)).get(0).getValue().trim();
+        String tableName = tableNode.getElement().getAttributesBy(Attribute.filterByName(NAME_ATTRIBUTE)).get(0).getValue().trim();
         List<Column> tableColumns = dao.getTableColumns(tableName);
         Table table = new Table(tableName, tableColumns);
 
         List<Column> uniqueColumns =
-                splitAttributeValue(tableNode.getTag().getAttributesBy(Attribute.filterByName(UNIQUE_ATTRIBUTE)).get(0));
+                splitAttributeValue(tableNode.getElement().getAttributesBy(Attribute.filterByName(UNIQUE_ATTRIBUTE)).get(0));
         List<Column> columnsForInsert =
-                splitAttributeValue(tableNode.getTag().getAttributesBy(Attribute.filterByName(COLUMNS_ATTRIBUTE)).get(0));
+                splitAttributeValue(tableNode.getElement().getAttributesBy(Attribute.filterByName(COLUMNS_ATTRIBUTE)).get(0));
 
         TableDto tableDto = new TableDto(table, uniqueColumns, columnsForInsert);
         checkTableColumns(tableDto);
@@ -200,35 +200,35 @@ public class Service {
 
     private void checkAttributesCount(Node tableNode) {
         List<Attribute> uniqueAttribute =
-                tableNode.getTag().getAttributesBy(Attribute.filterByName(UNIQUE_ATTRIBUTE));
+                tableNode.getElement().getAttributesBy(Attribute.filterByName(UNIQUE_ATTRIBUTE));
         List<Attribute> columnsAttribute =
-                tableNode.getTag().getAttributesBy(Attribute.filterByName(COLUMNS_ATTRIBUTE));
+                tableNode.getElement().getAttributesBy(Attribute.filterByName(COLUMNS_ATTRIBUTE));
         List<Attribute> tableName =
-                tableNode.getTag().getAttributesBy(Attribute.filterByName(NAME_ATTRIBUTE));
+                tableNode.getElement().getAttributesBy(Attribute.filterByName(NAME_ATTRIBUTE));
 
         if(tableName.isEmpty()){
             throw new IllegalArgumentException("Table name is not defined.");
         }
         if(tableName.size() > 1){
             throw new IllegalArgumentException(
-                    String.format("Attribute '%s' must be unique in the table tag.", NAME_ATTRIBUTE)
+                    String.format("Attribute '%s' must be unique in the table element.", NAME_ATTRIBUTE)
             );
         }
 
         if(uniqueAttribute.size() > 1){
             throw new IllegalArgumentException(
-                    String.format("Attribute '%s' must be unique in the table tag.", UNIQUE_ATTRIBUTE)
+                    String.format("Attribute '%s' must be unique in the table element.", UNIQUE_ATTRIBUTE)
             );
         }
 
         if(columnsAttribute.size() > 1){
             throw new IllegalArgumentException(
-                    String.format("Attribute '%s' must be unique in the table tag.", COLUMNS_ATTRIBUTE)
+                    String.format("Attribute '%s' must be unique in the table element.", COLUMNS_ATTRIBUTE)
             );
         }
         if(columnsAttribute.isEmpty()){
             throw new IllegalArgumentException(
-                    String.format("Attribute '%s' must be in the table tag.", COLUMNS_ATTRIBUTE)
+                    String.format("Attribute '%s' must be in the table element.", COLUMNS_ATTRIBUTE)
             );
         }
     }

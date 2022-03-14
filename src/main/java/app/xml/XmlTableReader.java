@@ -5,6 +5,7 @@ import app.model.Row;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class XmlTableReader implements TableReader{
 
@@ -14,8 +15,8 @@ public class XmlTableReader implements TableReader{
 
     private Node tableNode = null;
 
-    private static final String TABLE_TAG_NAME = "table";
-    private static final String ROW_TAG_NAME = "row";
+    private static final String TABLE_ELEMENT_NAME = "table";
+    private static final String ROW_ELEMENT_NAME = "row";
 
 
     public XmlTableReader(XmlParser xmlParser){
@@ -47,7 +48,7 @@ public class XmlTableReader implements TableReader{
         if(currentRowNode == null){
             return null;
         }
-        if(!currentRowNode.getTag().getName().equals(ROW_TAG_NAME)){
+        if(!currentRowNode.getElement().getName().equals(ROW_ELEMENT_NAME)){
             //TODO change exception
             throw new IllegalArgumentException("A non-row element was encountered in the table");
         }
@@ -65,6 +66,11 @@ public class XmlTableReader implements TableReader{
                 break;
             }
             cell = xmlParser.getNextNode();
+            if(isNewRow(cell)){
+                prevRowNode = currentRowNode;
+                currentRowNode = cell;
+                return new Row(nestedNodesInRow);
+            }
             nestedNodesInRow.add(cell);
         }
 
@@ -73,9 +79,13 @@ public class XmlTableReader implements TableReader{
         return new Row(nestedNodesInRow);
     }
 
+    private boolean isNewRow(Node node) {
+        return Objects.equals(node.getParent(), currentRowNode.getParent());
+    }
+
     private Node readTableElement() throws IOException{
         Node node = xmlParser.getNextNode();
-        if(!node.getTag().getName().equals(TABLE_TAG_NAME)){
+        if(!node.getElement().getName().equals(TABLE_ELEMENT_NAME)){
             //TODO change XML
             throw new IllegalArgumentException("XML does not start with table element.");
         }

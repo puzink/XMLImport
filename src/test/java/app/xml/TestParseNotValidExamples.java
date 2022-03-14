@@ -1,7 +1,7 @@
 package app.xml;
 
 import app.xml.exception.XmlParseException;
-import app.xml.exception.XmlTagParseException;
+import app.xml.exception.XmlElementParseException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -16,10 +16,10 @@ public class TestParseNotValidExamples {
 
     private ClassLoader classLoader = TestParseNotValidExamples.class.getClassLoader();
     private String notValidXmlsDirectory = "xmls/withErrors/";
-    private XmlTagParser tagParser = new XmlTagParserImpl();
+    private XmlElementParser elementParser = new XmlElementParserImpl();
 
     private List<Node> readAllNodes(File xml) throws IOException{
-        try(XmlParserImpl parser = new XmlParserImpl(xml, tagParser)) {
+        try(XmlPartParser parser = new XmlPartParser(xml, elementParser)) {
             List<Node> res = new ArrayList<>();
             Node node;
             while (parser.hasNextNode()) {
@@ -48,20 +48,20 @@ public class TestParseNotValidExamples {
     }
 
     @Test
-    public void testCloseTagBeforeOpen() throws URISyntaxException {
-        String xmlName = "close_tag_before_open.xml";
+    public void testCloseElementBeforeOpen() throws URISyntaxException {
+        String xmlName = "close_element_before_open.xml";
         File xml = getXmlFileForName(xmlName);
 
         Assertions.assertThrows(
                 XmlParseException.class,
                 () -> readAllNodes(xml),
-                "Close tag before the open one."
+                "Close element name does not coincide with the current node one."
         );
     }
 
     @Test
-    public void testEndOfFileInTag() throws URISyntaxException {
-        String xmlName = "end_of_file_inside_tag.xml";
+    public void testEndOfFileInElement() throws URISyntaxException {
+        String xmlName = "end_of_file_inside_element.xml";
         File xml = getXmlFileForName(xmlName);
 
         Assertions.assertThrows(
@@ -72,26 +72,26 @@ public class TestParseNotValidExamples {
     }
 
     @Test
-    public void testLeadingSpacesInCloseTag() throws URISyntaxException {
-        String xmlName = "leading_spaces_in_close_tag.xml";
+    public void testLeadingSpacesInCloseElement() throws URISyntaxException {
+        String xmlName = "leading_spaces_in_close_element.xml";
         File xml = getXmlFileForName(xmlName);
 
         Assertions.assertThrows(
-                XmlTagParseException.class,
+                XmlElementParseException.class,
                 () -> readAllNodes(xml),
-                "Whitespaces before tag name."
+                "Whitespaces before element name."
         );
     }
 
     @Test
-    public void testLeadingSpacesInTag() throws URISyntaxException {
-        String xmlName = "leading_spaces_in_tag.xml";
+    public void testLeadingSpacesInElement() throws URISyntaxException {
+        String xmlName = "leading_spaces_in_element.xml";
         File xml = getXmlFileForName(xmlName);
 
         Assertions.assertThrows(
-                XmlTagParseException.class,
+                XmlElementParseException.class,
                 () -> readAllNodes(xml),
-                "Whitespaces before tag name."
+                "Whitespaces before element name."
         );
     }
 
@@ -120,26 +120,26 @@ public class TestParseNotValidExamples {
     }
 
     @Test
-    public void testTagAfterXmlEnd() throws URISyntaxException {
-        String xmlName = "tag_after_xml_end.xml";
+    public void testElementAfterXmlEnd() throws URISyntaxException {
+        String xmlName = "element_after_xml_end.xml";
         File xml = getXmlFileForName(xmlName);
 
         Assertions.assertThrows(
                 XmlParseException.class,
                 () -> readAllNodes(xml),
-               "Multiply root tags."
+               "Multiply root elements."
         );
     }
 
     @Test
-    public void testCloseTagWithoutName() throws URISyntaxException {
-        String xmlName = "close_tag_without_name.xml";
+    public void testCloseElementWithoutName() throws URISyntaxException {
+        String xmlName = "close_element_without_name.xml";
         File xml = getXmlFileForName(xmlName);
 
         Assertions.assertThrows(
-                XmlTagParseException.class,
+                XmlElementParseException.class,
                 () -> readAllNodes(xml),
-                "Wrong tag name."
+                "Wrong element name."
         );
     }
 
@@ -149,7 +149,7 @@ public class TestParseNotValidExamples {
         File xml = getXmlFileForName(xmlName);
 
         Assertions.assertThrows(
-                XmlTagParseException.class,
+                XmlElementParseException.class,
                 () -> readAllNodes(xml),
                 "Attribute must has a value."
         );
@@ -161,7 +161,7 @@ public class TestParseNotValidExamples {
         File xml = getXmlFileForName(xmlName);
 
         Assertions.assertThrows(
-                XmlTagParseException.class,
+                XmlElementParseException.class,
                 () -> readAllNodes(xml),
                 "Attribute must has a value."
         );
@@ -173,7 +173,7 @@ public class TestParseNotValidExamples {
         File xml = getXmlFileForName(xmlName);
 
         Assertions.assertThrows(
-                XmlTagParseException.class,
+                XmlElementParseException.class,
                 () -> readAllNodes(xml),
                 "Attribute name must not be empty."
         );
@@ -185,19 +185,19 @@ public class TestParseNotValidExamples {
         File xml = getXmlFileForName(xmlName);
 
         Assertions.assertThrows(
-                XmlTagParseException.class,
+                XmlElementParseException.class,
                 () -> readAllNodes(xml),
                 "Attribute value must be enclosed in double quotes."
         );
     }
 
     @Test
-    public void testTagNameWithEqualSign() throws URISyntaxException {
-        String xmlName = "tag_name_with_equal_sign.xml";
+    public void testElementNameWithEqualSign() throws URISyntaxException {
+        String xmlName = "element_name_with_equal_sign.xml";
         File xml = getXmlFileForName(xmlName);
 
         Assertions.assertThrows(
-                XmlTagParseException.class,
+                XmlElementParseException.class,
                 () -> readAllNodes(xml),
                 "Name must contain digits and letters only."
         );
@@ -209,7 +209,7 @@ public class TestParseNotValidExamples {
         File xml = getXmlFileForName(xmlName);
 
         Assertions.assertThrows(
-                XmlTagParseException.class,
+                XmlElementParseException.class,
                 () -> readAllNodes(xml),
                 "Attribute value must be enclosed in double quotes."
         );

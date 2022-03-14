@@ -1,5 +1,5 @@
 package app.xml;
 
-public enum TagType {
+public enum ElementType {
     OPEN, CLOSE;
 }

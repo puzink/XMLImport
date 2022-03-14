@@ -3,32 +3,29 @@ package app.xml;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
 import java.util.Objects;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 @Getter
 public class Node {
-    private final Tag tag;
+    private final Element element;
     private final StringBuilder body;
     @Setter
     private NodeStatus status = NodeStatus.CLOSED;
     private final Node parent;
 
-    public Node(Node parent, Tag tag, NodeStatus status){
-        this(parent, tag);
+    public Node(Node parent, Element element, NodeStatus status){
+        this(parent, element);
         this.status = status;
     }
     
-    public Node(Node parent, Tag tag){
+    public Node(Node parent, Element element){
         this.parent = parent;
-        this.tag = tag;
+        this.element = element;
         body = new StringBuilder();
     }
 
     public String getName(){
-        return tag.getName();
+        return element.getName();
     }
 
     public void appendIntoBody(char c){
@@ -39,7 +36,7 @@ public class Node {
     }
 
     public String toString(){
-        return String.format("Name:%s, elem = '%s', body='%s'", tag.getName(), tag, body.toString());
+        return String.format("Name:%s, elem = '%s', body='%s'", element.getName(), element, body.toString());
     }
 
     public boolean isBodyEmpty() {
@@ -66,7 +63,7 @@ public class Node {
         Node other = (Node) o;
         return Objects.equals(other.getParent(), parent)
                 && Objects.equals(body.toString(), other.getBody().toString())
-                && Objects.equals(tag, other.getTag());
+                && Objects.equals(element, other.getElement());
 
     }
 

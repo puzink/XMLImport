@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -12,21 +13,39 @@ public class TestXmlTableReader {
 
     @Test
     public void testReadRows() throws IOException{
-        Node table = new Node(null, new Tag("table",null, TagType.OPEN),NodeStatus.OPENED);
-        Node row1 = new Node(table, new Tag("row",null, TagType.OPEN),NodeStatus.OPENED);
-        Node id = new Node(row1, new Tag("id",null, TagType.OPEN),NodeStatus.OPENED);
-        id.appendIntoBody("243");
-        Node name = new Node(row1, new Tag("name",null, TagType.OPEN),NodeStatus.OPENED);
-        name.appendIntoBody("Oleg");
-        Node row2 = new Node(table, new Tag("row",null, TagType.OPEN),NodeStatus.OPENED);
-        Node city = new Node(row2, new Tag("city",null, TagType.OPEN),NodeStatus.OPENED);
-        city.appendIntoBody("New-York");
-        Node phone = new Node(row2, new Tag("phone",null, TagType.OPEN),NodeStatus.OPENED);
-        phone.appendIntoBody("8534891");
+        Element tableOpen = new Element("table", new ArrayList<>(), ElementType.OPEN);
+        Element row1Open = new Element("row", new ArrayList<>(), ElementType.OPEN);
+        Element idOpen = new Element("id", new ArrayList<>(), ElementType.OPEN);
+        Element idClose = new Element("id", new ArrayList<>(), ElementType.CLOSE);
+        Element nameOpen = new Element("name", new ArrayList<>(), ElementType.OPEN);
+        Element nameClose = new Element("name", new ArrayList<>(), ElementType.CLOSE);
+        Element row1Close = new Element("row", new ArrayList<>(), ElementType.CLOSE);
+        Element row2Open = new Element("row", new ArrayList<>(), ElementType.OPEN);
+        Element cityOpen = new Element("city", new ArrayList<>(), ElementType.OPEN);
+        Element cityClose = new Element("city", new ArrayList<>(), ElementType.CLOSE);
+        Element phoneOpen = new Element("phone", new ArrayList<>(), ElementType.OPEN);
+        Element phoneClose = new Element("phone", new ArrayList<>(), ElementType.CLOSE);
+        Element row2Close = new Element("row", new ArrayList<>(), ElementType.CLOSE);
+        Element tableClose = new Element("table", new ArrayList<>(), ElementType.CLOSE);
 
-        List<Node> nodes = List.of(table, row1, id, name, row2, city, phone);
+        List<String> nodeBodies = List.of("","","243","Oleg","","New-York","8534891");
 
-        XmlParser parser = new ListParser(nodes);
+//        Node table = new Node(null, new Element("table",null, ElementType.OPEN),NodeStatus.OPENED);
+//        Node row1 = new Node(table, new Element("row",null, ElementType.OPEN),NodeStatus.OPENED);
+//        Node id = new Node(row1, new Element("id",null, ElementType.OPEN),NodeStatus.OPENED);
+//        id.appendIntoBody("243");
+//        Node name = new Node(row1, new Element("name",null, ElementType.OPEN),NodeStatus.OPENED);
+//        name.appendIntoBody("Oleg");
+//        Node row2 = new Node(table, new Element("row",null, ElementType.OPEN),NodeStatus.OPENED);
+//        Node city = new Node(row2, new Element("city",null, ElementType.OPEN),NodeStatus.OPENED);
+//        city.appendIntoBody("New-York");
+//        Node phone = new Node(row2, new Element("phone",null, ElementType.OPEN),NodeStatus.OPENED);
+//        phone.appendIntoBody("8534891");
+
+        List<Element> elements = List.of(tableOpen, row1Open, idOpen, idClose, nameOpen, nameClose, row1Close,
+                row2Open, cityOpen, cityClose, phoneOpen, phoneClose, row2Close, tableClose);
+
+        XmlParser parser = new ListParser(elements, nodeBodies);
 
         TableReader tableReader = new XmlTableReader(parser);
         Row expectedRow = new Row(Map.of("id","243", "name", "Oleg"));
@@ -41,17 +60,21 @@ public class TestXmlTableReader {
 
     @Test
     public void testReadNotRowNode() throws IOException{
-        Node table = new Node(null, new Tag("table",null, TagType.OPEN),NodeStatus.OPENED);
-        Node id = new Node(table, new Tag("id",null, TagType.OPEN),NodeStatus.OPENED);
-        List<Node> nodes = List.of(table, id);
+//        Node table = new Node(null, new Element("table",null, ElementType.OPEN),NodeStatus.OPENED);
+//        Node id = new Node(table, new Element("id",null, ElementType.OPEN),NodeStatus.OPENED);
+//        List<Node> nodes = List.of(table, id);
 
-        XmlParser parser = new ListParser(nodes);
+        Element tableOpen = new Element("table", new ArrayList<>(), ElementType.OPEN);
+        Element idOpen = new Element("id", new ArrayList<>(), ElementType.OPEN);
+
+        XmlParser parser = new ListParser(List.of(tableOpen, idOpen), List.of());
 
         TableReader tableReader = new XmlTableReader(parser);
 
         Assertions.assertThrows(IllegalArgumentException.class,
                 tableReader::readRow,
-                "A non-row element was encountered in the table");
+                "A non-row element was encountered in the table"
+        );
 
     }
 

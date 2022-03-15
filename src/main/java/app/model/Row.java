@@ -21,7 +21,7 @@ public class Row {
         this.values = nodes.stream()
                 .collect(
                         supp,
-                        (map, node) -> map.put(node.getName(), node.getText()),
+                        (map, node) -> map.put(node.getName(), node.getStringBody()),
                         Map::putAll
                 );
     }

@@ -30,7 +30,7 @@ public class Main {
         DAO dao = new DAO(getConnection());
         File file = new File("C:\\Users\\puzink\\Documents\\testImporter\\" + "tableWith20Rows.txt");
 //        File file = getFile();
-        try(XmlParser parser = new XmlPartParser(file, new XmlElementParserImpl())){
+        try(XmlParser parser = new XmlLazyParser(file, new XmlElementParserImpl())){
             XmlTableReader tableReader = new XmlTableReader(parser);
             Service service = new Service(dao, tableReader);
             long start = System.nanoTime();

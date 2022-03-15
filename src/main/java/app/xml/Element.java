@@ -9,6 +9,11 @@ import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+
+/**
+ * Xml-элемент. Элемент состоит из имени, списка атрибутов({@link Attribute})
+ *  и типа элемента({@link ElementType}).
+ */
 @Getter
 public class Element {
 
@@ -57,6 +62,10 @@ public class Element {
         }
         return Objects.equals(other.name, name)
                 && type == other.type;
+    }
+
+    public boolean isClose() {
+        return type == ElementType.CLOSE;
     }
 
 }

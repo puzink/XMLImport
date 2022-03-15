@@ -17,7 +17,7 @@ public class TestParseValidExamples {
     private XmlElementParser elementParser = new XmlElementParserImpl();
 
     private List<Node> readAllNodes(File xml) throws IOException{
-        try(XmlPartParser parser = new XmlPartParser(xml, elementParser)) {
+        try(XmlLazyParser parser = new XmlLazyParser(xml, elementParser)) {
             List<Node> res = new ArrayList<>();
             Node node;
             while (parser.hasNextNode()) {

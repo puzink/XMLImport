@@ -19,7 +19,7 @@ public class TestParseNotValidExamples {
     private XmlElementParser elementParser = new XmlElementParserImpl();
 
     private List<Node> readAllNodes(File xml) throws IOException{
-        try(XmlPartParser parser = new XmlPartParser(xml, elementParser)) {
+        try(XmlLazyParser parser = new XmlLazyParser(xml, elementParser)) {
             List<Node> res = new ArrayList<>();
             Node node;
             while (parser.hasNextNode()) {
@@ -55,7 +55,7 @@ public class TestParseNotValidExamples {
         Assertions.assertThrows(
                 XmlParseException.class,
                 () -> readAllNodes(xml),
-                "Close element name does not coincide with the current node one."
+                "Close element name does not equal to the current node one."
         );
     }
 

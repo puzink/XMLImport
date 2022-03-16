@@ -8,7 +8,7 @@ import app.model.dto.TableDto;
 import app.service.converter.ConverterFactory;
 import app.xml.Attribute;
 import app.xml.Node;
-import app.xml.TableReader;
+import app.xml.XmlTableReader;
 
 import java.io.IOException;
 import java.util.*;
@@ -22,11 +22,11 @@ public class Service {
     private static final String NAME_ATTRIBUTE = "name";
 
     private final DAO dao;
-    private final TableReader tableReader;
+    private final XmlTableReader xmlTableReader;
 
-    public Service(DAO dao, TableReader tableReader) {
+    public Service(DAO dao, XmlTableReader xmlTableReader) {
         this.dao = dao;
-        this.tableReader = tableReader;
+        this.xmlTableReader = xmlTableReader;
     }
 
     public long importRows() throws IOException {
@@ -79,7 +79,7 @@ public class Service {
     private List<Row> readRows(int rowCount, TableDto tableDto) throws IOException {
         Row row;
         List<Row> rows = new ArrayList<>();
-        while(rows.size() < rowCount && (row = tableReader.readRow()) != null){
+        while(rows.size() < rowCount && (row = xmlTableReader.readRow()) != null){
             if(!Objects.equals(row.getValues().size(),tableDto.getColumnsForInsert().size())){
                 //TODO logging
                 continue;
@@ -95,7 +95,7 @@ public class Service {
 
     //TODO rename
     private TableDto readTable() throws IOException {
-        Node tableNode = tableReader.getTable();
+        Node tableNode = xmlTableReader.getTable();
         checkAttributesCount(tableNode);
         String tableName = tableNode.getElement().getAttributesBy(Attribute.filterByName(NAME_ATTRIBUTE)).get(0).getValue().trim();
         List<Column> tableColumns = dao.getTableColumns(tableName);

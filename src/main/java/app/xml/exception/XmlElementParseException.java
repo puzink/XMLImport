@@ -4,9 +4,9 @@ import app.xml.CursorPosition;
 
 public class XmlElementParseException extends XmlParseException{
 
-    //TODO change
+    //TODO добавить курсор
     public XmlElementParseException(String message) {
-        super(message, null);
+        super(message);
     }
 
     public XmlElementParseException(String message, CursorPosition cursorPosition) {

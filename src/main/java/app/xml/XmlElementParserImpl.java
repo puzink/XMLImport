@@ -5,43 +5,67 @@ import app.xml.exception.XmlElementParseException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Реализация парсера из строки в {@link Element}.
+ */
 public class XmlElementParserImpl implements XmlElementParser {
 
+    /**
+     * Полностью разбирает строку, хранящую имя элемента и его атрибуты.
+     * @param strElement - строка с содержимым элемента
+     * @return элемент
+     * @throws XmlElementParseException - в случае нарушения правил
+     */
     @Override
-    public Element parseElement(String str) throws XmlElementParseException {
-        checkElementIsEmpty(str);
-        String name = parseName(str);
-        int attributeStart = str.indexOf(name) + name.length();
-        List<Attribute> attributes = parseAttributes(str.substring(attributeStart));
-        ElementType type = parseType(str);
+    public Element parseElement(String strElement) throws XmlElementParseException {
+        checkElementIsEmpty(strElement);
+        String name = parseName(strElement);
+        int attributeStart = strElement.indexOf(name) + name.length();
+        List<Attribute> attributes = parseAttributes(strElement.substring(attributeStart));
+        ElementType type = parseType(strElement.charAt(0));
         return new Element(name, attributes, type);
     }
 
+    /**
+     * Достаёт имя элемента из строки.
+     * @param strElement - строка с содержимым элемента(можно без атрибутов)
+     * @return имя элемента
+     * @throws XmlElementParseException - если строка пустая либо нарушены правила
+     *                                              (отступы вначале, некорректное имя).
+     */
     @Override
-    public String parseName(String str) throws XmlElementParseException {
-        checkElementIsEmpty(str);
+    public String parseName(String strElement) throws XmlElementParseException {
+        checkElementIsEmpty(strElement);
 
-        int nameStart = findFirstNotWhitespaceChar(str, 0);
+        int nameStart = findFirstNotWhitespaceChar(strElement, 0);
         if(nameStart > 0){
             throw new XmlElementParseException("Whitespaces before element name.");
         }
-        if (hasSpecialSymbol(str, nameStart)) {
-            nameStart = findFirstNotWhitespaceChar(str, nameStart + 1);
+        // между '/' и именем элемента могут быть отступы: </   table>
+        if (hasElementTypeSymbol(strElement, nameStart)) {
+            nameStart = findFirstNotWhitespaceChar(strElement, nameStart + 1);
         }
         if(nameStart < 0){
             throw new XmlElementParseException("Element name is not found.");
         }
-        int nameEnd = findWhitespace(str, nameStart + 1);
-        nameEnd = (nameEnd < 0) ? str.length() : nameEnd;
+        int nameEnd = findWhitespace(strElement, nameStart + 1);
+        nameEnd = (nameEnd < 0) ? strElement.length() : nameEnd;
 
-        String name = str.substring(nameStart, nameEnd).trim();
+        String name = strElement.substring(nameStart, nameEnd).trim();
         validateName(name);
 
         return name;
     }
 
 
-
+    /**
+     * Разбирает строку по атрибутам элемента.
+     * Строка должна содержать только наборы ключ-значение.
+     * Строка должна удовлетворять правилам задания атрибутов и их ключей.
+     * @param str - строка с атрибутами
+     * @return список атрибутов
+     * @throws XmlElementParseException - если нарушено 1 из правил для атрибута, либо для его ключа.
+     */
     @Override
     public List<Attribute> parseAttributes(String str) throws XmlElementParseException {
         List<Attribute> result = new ArrayList<>();
@@ -80,22 +104,42 @@ public class XmlElementParserImpl implements XmlElementParser {
         return result;
     }
 
+    /**
+     * Определяет тип элемента ({@link ElementType}).
+     * @param c - первый символ элемента
+     * @return тип элемента
+     */
     @Override
-    public ElementType parseType(String str) throws XmlElementParseException {
-        checkElementIsEmpty(str);
-        if(Character.isWhitespace(str.charAt(0))){
-            throw new XmlElementParseException("Whitespaces before element name.");
-        }
-        if(str.charAt(0) == '/'){
+    public ElementType parseType(char c){
+        if(c == '/'){
             return ElementType.CLOSE;
+        }
+        if(c == '?'){
+            return ElementType.PROLOG;
         }
         return ElementType.OPEN;
     }
 
-    private boolean hasSpecialSymbol(String str, int nameStart) {
-        return str.charAt(nameStart) == '/';
+    /**
+     * Проверяет есть в начале элемента специальный символ.
+     * @param str - элемент
+     * @param nameStart - начало элемента
+     * @return true - есть, false - нет
+     */
+    private boolean hasElementTypeSymbol(String str, int nameStart) {
+        char c = str.charAt(nameStart);
+        return c == '/' || c == '?';
     }
 
+    /**
+     * Проверяет имя на корректность.
+     * Правила задания имён элемента и ключей атрибутов:
+     *  1) имена должны начинаться с буквы ({@link Character#isLetter(char)}),
+     *  2) все остальные символы должны быть буквой либо символом
+     *                          ({@link Character#isLetterOrDigit(char)}).
+     * @param name - имя элемента или ключ атрибута.
+     * @throws XmlElementParseException - если имя не соответствует правилам, либо пусто.
+     */
     private void validateName(String name) throws XmlElementParseException {
         if(name.isBlank()){
             throw new XmlElementParseException("Name must not be empty.");
@@ -112,19 +156,14 @@ public class XmlElementParserImpl implements XmlElementParser {
         }
     }
 
-//    private int findChar(Predicate<Character> predicate, int from, String str){
-//        if(from >= str.length()){
-//            return -1;
-//        }
-//        for(int i = from;i < str.length();++i){
-//            if(predicate.test(str.charAt(i))){
-//                return i;
-//            }
-//        }
-//        return -1;
-//    }
-
-
+    /**
+     * Находит первый символ в строке
+     *      не являющийся отступом({@link Character#isWhitespace(char) == false}),
+     *      начиная с заданной позиции.
+     * @param str - строка для поиска
+     * @param from - позиция, с которой начинается поиск
+     * @return позиция символа в строке. -1 - если символа нет, либо from >= str.length().
+     */
     private int findFirstNotWhitespaceChar(String str, int from){
         if(from >= str.length()){
             return -1;
@@ -137,6 +176,13 @@ public class XmlElementParserImpl implements XmlElementParser {
         return -1;
     }
 
+    /**
+     * Поиск отступа({@link Character#isWhitespace(char) == true}) в строке,
+     *      начиная с заданной позиции.
+     * @param str - строка для поиска
+     * @param from - позиция, с которой начинается поиск
+     * @return позиция символа в строке. -1 - если отступа нет, либо from >= str.length().
+     */
     private int findWhitespace(String str, int from) {
         if(from >= str.length()){
             return -1;
@@ -149,6 +195,11 @@ public class XmlElementParserImpl implements XmlElementParser {
         return -1;
     }
 
+    /**
+     * Проверяет, пуст ли элемент.
+     * @param str - элемент
+     * @throws XmlElementParseException - элемент пуст
+     */
     private void checkElementIsEmpty(String str) throws XmlElementParseException {
         if(str.isBlank()){
             throw new XmlElementParseException("Element must not be empty.");

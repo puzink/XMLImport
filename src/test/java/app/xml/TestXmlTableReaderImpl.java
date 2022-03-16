@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class TestXmlTableReader {
+public class TestXmlTableReaderImpl {
 
     @Test
     public void testReadRows() throws IOException{
@@ -35,14 +35,14 @@ public class TestXmlTableReader {
 
         XmlParser parser = new ListParser(elements, nodeBodies);
 
-        TableReader tableReader = new XmlTableReader(parser);
+        XmlTableReader xmlTableReader = new XmlTableReaderImpl(parser);
         Row expectedRow = new Row(Map.of("id","243", "name", "Oleg"));
         Row expectedRow2 = new Row(Map.of("city","New-York", "phone", "8534891"));
 
-        Assertions.assertEquals(expectedRow, tableReader.readRow());
-        Assertions.assertEquals(expectedRow2, tableReader.readRow());
-        Assertions.assertNull(tableReader.readRow());
-        Assertions.assertNull(tableReader.readRow());
+        Assertions.assertEquals(expectedRow, xmlTableReader.readRow());
+        Assertions.assertEquals(expectedRow2, xmlTableReader.readRow());
+        Assertions.assertNull(xmlTableReader.readRow());
+        Assertions.assertNull(xmlTableReader.readRow());
 
     }
 
@@ -54,10 +54,10 @@ public class TestXmlTableReader {
 
         XmlParser parser = new ListParser(List.of(tableOpen, idOpen), List.of("",""));
 
-        TableReader tableReader = new XmlTableReader(parser);
+        XmlTableReader xmlTableReader = new XmlTableReaderImpl(parser);
 
         Assertions.assertThrows(IllegalArgumentException.class,
-                tableReader::readRow,
+                xmlTableReader::readRow,
                 "A non-row element was encountered in the table"
         );
 

@@ -31,7 +31,7 @@ public class Main {
         File file = new File("C:\\Users\\puzink\\Documents\\testImporter\\" + "tableWith20Rows.txt");
 //        File file = getFile();
         try(XmlParser parser = new XmlLazyParser(file, new XmlElementParserImpl())){
-            XmlTableReader tableReader = new XmlTableReader(parser);
+            XmlTableReaderImpl tableReader = new XmlTableReaderImpl(parser);
             Service service = new Service(dao, tableReader);
             long start = System.nanoTime();
             System.out.println(service.importRows());

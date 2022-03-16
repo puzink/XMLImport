@@ -120,7 +120,7 @@ public class XmlLazyParser implements XmlParser{
 
     /**
      * Возвращает true, если в дереве ещё есть непрочитанные узлы.
-     * Если до вызова метода произошла какая-то ошибка {@link IOException} или {@link XmlParseException},
+     * Если до вызова метода произошла ошибка {@link IOException} или {@link XmlParseException},
      * но не {@link XmlExpectedEndOfFileException} и {@link XmlNoMoreNodesException},
      * тогда повторно вызывается это исключение.
      * @return {@code true} - в дереве есть непрочитанные узлы. Иначе - {@code false}.

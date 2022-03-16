@@ -6,9 +6,9 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-public class TestElementParse {
+public class TestXmlElementParserImpl {
 
-    private XmlElementParser elementParser = new XmlElementParserImpl();
+    private final XmlElementParser elementParser = new XmlElementParserImpl();
 
     @Test
     public void testInvalidAttributeNames(){

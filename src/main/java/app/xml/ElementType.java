@@ -1,5 +1,5 @@
 package app.xml;
 
 public enum ElementType {
-    OPEN, CLOSE;
+    OPEN, CLOSE, PROLOG;
 }

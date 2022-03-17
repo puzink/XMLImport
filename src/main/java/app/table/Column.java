@@ -1,11 +1,12 @@
-package app.model;
+package app.table;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.util.Objects;
 
+/**
+ * Столбец таблицы.
+ */
 @Getter
 public class Column {
 
@@ -26,6 +27,7 @@ public class Column {
         return name.hashCode();
     }
 
+    @Override
     public boolean equals(Object o){
         if(o == null){
             return false;

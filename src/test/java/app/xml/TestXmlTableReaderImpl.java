@@ -1,6 +1,6 @@
 package app.xml;
 
-import app.model.Row;
+import app.table.Row;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

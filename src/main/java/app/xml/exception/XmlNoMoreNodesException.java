@@ -4,6 +4,9 @@ import app.xml.CursorPosition;
 
 import java.io.IOException;
 
+/**
+ * В xml-файле больше нет узлов.
+ */
 public class XmlNoMoreNodesException extends XmlParseException{
 
     public XmlNoMoreNodesException(CursorPosition cursorPosition){

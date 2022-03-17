@@ -17,8 +17,17 @@ import java.util.stream.Collectors;
 @Getter
 public class Element {
 
+    /**
+     * имя элемента
+     */
     private String name;
+    /**
+     * набор атрибутов
+     */
     private List<Attribute> attributes = new ArrayList<>();
+    /**
+     * тип элемента
+     */
     private ElementType type;
 
     public Element(String name, List<Attribute> attributes, ElementType type) {
@@ -27,20 +36,32 @@ public class Element {
         this.type = type;
     }
 
+    /**
+     * Фильтрует атрибуты элемента по заданому правилу.
+     * @param predicate - правило фильтрации
+     * @return отфильтрованный список атрибутов
+     */
     public List<Attribute> getAttributesBy(Predicate<Attribute> predicate){
         return attributes.stream()
                 .filter(predicate)
                 .collect(Collectors.toList());
     }
 
+    @Override
     public String toString() {
         List<String> attributeStrings = attributes.stream()
                 .map(Attribute::toString)
                 .collect(Collectors.toList());
 
-        return String.format("<%s %s>", name, String.join(" ", attributeStrings));
+        return String.format("Element:{name = %s, attrs: %s}", name, String.join(" ", attributeStrings));
     }
 
+    /**
+     * Сравнивает элементы по атрибутам, имени и типу.
+     * @param o - другой объект
+     * @return true - равны, false - иначе.
+     */
+    @Override
     public boolean equals(Object o) {
         if(o == null){
             return false;

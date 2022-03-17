@@ -2,6 +2,9 @@ package app.xml.exception;
 
 import app.xml.CursorPosition;
 
+/**
+ * Исключительная ситуация, оповещающая о невозможности корректно разобрать строку xml-элемента.
+ */
 public class XmlElementParseException extends XmlParseException{
 
     //TODO добавить курсор

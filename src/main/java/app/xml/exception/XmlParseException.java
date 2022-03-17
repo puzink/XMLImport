@@ -5,10 +5,14 @@ import app.xml.CursorPosition;
 import java.io.IOException;
 
 
-//TODO refactor
+/**
+ * Исключительная ситуация, возникающая при парсинге xml-файла.
+ */
 public class XmlParseException extends IOException {
 
-    //TODO add cursor logic
+    /**
+     * Позиция в файле.
+     */
     private CursorPosition position;
 
     public XmlParseException(String message){

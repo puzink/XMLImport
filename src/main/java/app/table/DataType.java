@@ -1,8 +1,11 @@
-package app.model;
+package app.table;
 
 import java.util.Arrays;
 import java.util.Optional;
 
+/**
+ * Связь между типами в java и в postgresql.
+ */
 public enum DataType {
     INTEGER("integer"),
     DOUBLE("double precision"),
@@ -17,9 +20,14 @@ public enum DataType {
         this.sqlType = sqlType;
     }
 
-    public static Optional<DataType> getBySqlType(String type){
+    /**
+     * Определяет тип по sql-типу в виде строкию
+     * @param sqlType - нужный тип
+     * @return Optional от нужного типа
+     */
+    public static Optional<DataType> getBySqlType(String sqlType){
         return Arrays.stream(DataType.values())
-                .filter(dataType -> dataType.sqlType.equals(type))
+                .filter(dataType -> dataType.sqlType.equals(sqlType))
                 .findFirst();
     }
 

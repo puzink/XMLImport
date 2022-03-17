@@ -1,10 +1,10 @@
 package app.service;
 
 import app.jdbc.DAO;
-import app.model.Column;
-import app.model.Row;
-import app.model.Table;
-import app.model.dto.TableDto;
+import app.table.Column;
+import app.table.Row;
+import app.table.Table;
+import app.table.dto.ImportTableDto;
 import app.service.converter.ConverterFactory;
 import app.xml.Attribute;
 import app.xml.Node;
@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class Service {
+public class Importer {
 
     private static final int DEFAULT_ROW_COUNT = 50;
     private static final String UNIQUE_ATTRIBUTE = "unique";
@@ -24,25 +24,25 @@ public class Service {
     private final DAO dao;
     private final XmlTableReader xmlTableReader;
 
-    public Service(DAO dao, XmlTableReader xmlTableReader) {
+    public Importer(DAO dao, XmlTableReader xmlTableReader) {
         this.dao = dao;
         this.xmlTableReader = xmlTableReader;
     }
 
     public long importRows() throws IOException {
-        TableDto tableDto = readTable();
-        List<Row> rows = readRows(DEFAULT_ROW_COUNT, tableDto);
+        ImportTableDto importTableDto = readTable();
+        List<Row> rows = readRows(DEFAULT_ROW_COUNT, importTableDto);
         long insertedRows = 0;
         long readRows = 0;
         while(!rows.isEmpty()){
             readRows += rows.size();
-            rows = convertValues(rows, tableDto.getTable().getColumns());
-            rows = removeDuplicates(rows, tableDto.getTable().getName(), tableDto.getUniqueColumns());
+            rows = convertValues(rows, importTableDto.getTable().getColumns());
+            rows = removeDuplicates(rows, importTableDto.getTable().getName(), importTableDto.getUniqueColumns());
             insertedRows +=
-                    dao.insertRows(rows, tableDto.getColumnsForInsert(), tableDto.getTable().getName());
+                    dao.insertRows(rows, importTableDto.getColumnsForInsert(), importTableDto.getTable().getName());
 
             System.out.println("Read rows = " + readRows);
-            rows = readRows(DEFAULT_ROW_COUNT, tableDto);
+            rows = readRows(DEFAULT_ROW_COUNT, importTableDto);
         }
 
         return insertedRows;
@@ -76,15 +76,15 @@ public class Service {
     }
 
 
-    private List<Row> readRows(int rowCount, TableDto tableDto) throws IOException {
+    private List<Row> readRows(int rowCount, ImportTableDto importTableDto) throws IOException {
         Row row;
         List<Row> rows = new ArrayList<>();
         while(rows.size() < rowCount && (row = xmlTableReader.readRow()) != null){
-            if(!Objects.equals(row.getValues().size(),tableDto.getColumnsForInsert().size())){
+            if(!Objects.equals(row.getValues().size(), importTableDto.getColumnsForInsert().size())){
                 //TODO logging
                 continue;
             }
-            if(!row.containsColumns(tableDto.getColumnsForInsert())){
+            if(!row.containsColumns(importTableDto.getColumnsForInsert())){
                 //TODO logging
                 continue;
             }
@@ -94,7 +94,7 @@ public class Service {
     }
 
     //TODO rename
-    private TableDto readTable() throws IOException {
+    private ImportTableDto readTable() throws IOException {
         Node tableNode = xmlTableReader.getTable();
         checkAttributesCount(tableNode);
         String tableName = tableNode.getElement().getAttributesBy(Attribute.filterByName(NAME_ATTRIBUTE)).get(0).getValue().trim();
@@ -106,9 +106,9 @@ public class Service {
         List<Column> columnsForInsert =
                 splitAttributeValue(tableNode.getElement().getAttributesBy(Attribute.filterByName(COLUMNS_ATTRIBUTE)).get(0));
 
-        TableDto tableDto = new TableDto(table, uniqueColumns, columnsForInsert);
-        checkTableColumns(tableDto);
-        return tableDto;
+        ImportTableDto importTableDto = new ImportTableDto(table, uniqueColumns, columnsForInsert);
+        checkTableColumns(importTableDto);
+        return importTableDto;
     }
 
     private List<Row> removeDuplicates(List<Row> rows, String tableName, List<Column> uniqueColumns) {
@@ -132,10 +132,10 @@ public class Service {
         return result;
     }
 
-    private void checkTableColumns(TableDto tableDto) {
+    private void checkTableColumns(ImportTableDto importTableDto) {
 
         Optional<Column> uniqueColumn =
-                findNotExistedColumn(tableDto.getUniqueColumns(), tableDto.getColumnsForInsert());
+                findNotExistedColumn(importTableDto.getUniqueColumns(), importTableDto.getColumnsForInsert());
         if(uniqueColumn.isPresent()){
             throw new IllegalArgumentException(
                     String.format(
@@ -146,7 +146,7 @@ public class Service {
             );
         }
         Optional<Column> column =
-                findNotExistedColumn(tableDto.getColumnsForInsert(), tableDto.getTable().getColumns());
+                findNotExistedColumn(importTableDto.getColumnsForInsert(), importTableDto.getTable().getColumns());
         if(column.isPresent()){
             throw new IllegalArgumentException(
                     String.format(
@@ -157,7 +157,7 @@ public class Service {
             );
         }
 
-        Optional<Column> duplicateUniqueColumn = findDuplicateColumn(tableDto.getUniqueColumns());
+        Optional<Column> duplicateUniqueColumn = findDuplicateColumn(importTableDto.getUniqueColumns());
         if(duplicateUniqueColumn.isPresent()){
             throw new IllegalArgumentException(
                     String.format("Attribute '%s' has a duplicate value '%s'.",
@@ -167,7 +167,7 @@ public class Service {
             );
         }
 
-        Optional<Column> duplicateTableColumn = findDuplicateColumn(tableDto.getColumnsForInsert());
+        Optional<Column> duplicateTableColumn = findDuplicateColumn(importTableDto.getColumnsForInsert());
         if(duplicateTableColumn.isPresent()){
             throw new IllegalArgumentException(
                     String.format("Attribute '%s' has a duplicate value '%s'.",

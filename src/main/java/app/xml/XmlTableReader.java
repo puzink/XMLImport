@@ -1,6 +1,6 @@
 package app.xml;
 
-import app.model.Row;
+import app.table.Row;
 
 import java.io.IOException;
 

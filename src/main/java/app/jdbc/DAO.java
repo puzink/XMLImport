@@ -1,12 +1,11 @@
 package app.jdbc;
 
-import app.model.Column;
-import app.model.DataType;
-import app.model.Row;
+import app.table.Column;
+import app.table.DataType;
+import app.table.Row;
 
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 

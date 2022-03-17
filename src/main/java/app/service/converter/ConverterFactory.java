@@ -1,7 +1,8 @@
 package app.service.converter;
 
-import app.model.DataType;
+import app.table.DataType;
 
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,8 +13,7 @@ public class ConverterFactory {
     private final Map<DataType, StringConverter<?>> stringConverters;
 
     {
-        //TODO может ли enum поменять свой хэш?
-        stringConverters = new HashMap<>();
+        stringConverters = new EnumMap<>(DataType.class);
         stringConverters.put(DataType.STRING, new ToStringConverter());
         stringConverters.put(DataType.INTEGER, new ToIntegerConverter());
         stringConverters.put(DataType.LONG, new ToLongConverter());

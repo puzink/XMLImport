@@ -1,10 +1,8 @@
 package app;
 
-import app.model.Column;
 import org.junit.jupiter.api.Test;
 
 import java.io.*;
-import java.nio.file.Path;
 import java.sql.*;
 import java.util.List;
 import java.util.Map;

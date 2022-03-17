@@ -1,15 +1,21 @@
-package app.model;
+package app.table;
 
 import lombok.Getter;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
+/**
+ * Таблица.
+ */
 @Getter
 public class Table {
 
     private final String name;
+
+    /**
+     * Столбцы таблицы.
+     */
     private final List<Column> columns;
 
     public Table(String name, List<Column> columns) {
@@ -21,7 +27,4 @@ public class Table {
         return Collections.unmodifiableList(columns);
     }
 
-    public boolean containsColumn(String columnName){
-        return columns.stream().anyMatch(col -> col.getName().equals(columnName));
-    }
 }

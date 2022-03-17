@@ -1,7 +1,7 @@
 package app;
 
 import app.jdbc.DAO;
-import app.service.Service;
+import app.service.Importer;
 import app.xml.*;
 
 import java.io.File;
@@ -32,9 +32,9 @@ public class Main {
 //        File file = getFile();
         try(XmlParser parser = new XmlLazyParser(file, new XmlElementParserImpl())){
             XmlTableReaderImpl tableReader = new XmlTableReaderImpl(parser);
-            Service service = new Service(dao, tableReader);
+            Importer importer = new Importer(dao, tableReader);
             long start = System.nanoTime();
-            System.out.println(service.importRows());
+            System.out.println(importer.importRows());
             System.out.println("Time = " + (System.nanoTime() - start));
         }
 

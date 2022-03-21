@@ -1,6 +1,7 @@
 package app.xml;
 
 import app.table.Row;
+import app.xml.exception.XmlUnexpectedElementMetException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -56,7 +57,7 @@ public class TestXmlTableReaderImpl {
 
         XmlTableReader xmlTableReader = new XmlTableReaderImpl(parser);
 
-        Assertions.assertThrows(IllegalArgumentException.class,
+        Assertions.assertThrows(XmlUnexpectedElementMetException.class,
                 xmlTableReader::readRow,
                 "A non-row element was encountered in the table"
         );

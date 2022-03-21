@@ -6,6 +6,7 @@ import lombok.Getter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -37,7 +38,7 @@ public class Element {
     }
 
     /**
-     * Фильтрует атрибуты элемента по заданому правилу.
+     * Фильтрует атрибуты элемента по заданному правилу.
      * @param predicate - правило фильтрации
      * @return отфильтрованный список атрибутов
      */
@@ -45,6 +46,17 @@ public class Element {
         return attributes.stream()
                 .filter(predicate)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Ищет атрибут по заданному правилу.
+     * @param predicate - правило фильтрации
+     * @return первый найденный атрибут
+     */
+    public Optional<Attribute> getAttributeBy(Predicate<Attribute> predicate){
+        return attributes.stream()
+                .filter(predicate)
+                .findFirst();
     }
 
     @Override

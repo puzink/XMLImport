@@ -4,6 +4,7 @@ import app.xml.exception.XmlElementParseException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Реализация парсера из строки в {@link Element}.
@@ -98,10 +99,35 @@ public class XmlElementParserImpl implements XmlElementParser {
             String value = str.substring(attrValueStart + 1, attrValueEnd);
             result.add(new Attribute(key, value));
 
+            checkAttributeUniqueness(result, key);
+
             attributeKeyStart = findFirstNotWhitespaceChar(str, attrValueEnd + 1);
         }
 
         return result;
+    }
+
+    /**
+     * Проверяет на уникальность атрибута.
+     * Если атрибут не уникален - возникает исключительная ситуация.
+     * @param attributes - список атрибутов
+     * @param attributeName - имя уникального атрибута
+     * @throws XmlElementParseException - если атрибут не уникален
+     */
+    private void checkAttributeUniqueness(List<Attribute> attributes, String attributeName)
+            throws XmlElementParseException {
+        long attrCount = attributes.stream()
+                .filter(Attribute.filterByName(attributeName))
+                .count();
+
+        if(attrCount > 1){
+            throw new XmlElementParseException(
+                    String.format(
+                            "Duplicate attribute '%s'.",
+                            attributeName
+                    )
+            );
+        }
     }
 
     /**

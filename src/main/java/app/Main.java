@@ -1,7 +1,10 @@
 package app;
 
-import app.jdbc.DAO;
-import app.service.Importer;
+import app.jdbc.RowDao;
+import app.repository.RowRepository;
+import app.jdbc.TableDao;
+import app.repository.TableRepository;
+import app.service.imports.XmlImporter;
 import app.xml.*;
 
 import java.io.File;
@@ -27,14 +30,17 @@ public class Main {
 
 
     public static void main(String[] args) throws Exception {
-        DAO dao = new DAO(getConnection());
+        RowDao rowDao = new RowDao(getConnection());
+        TableDao tableDao = new TableDao(getConnection());
         File file = new File("C:\\Users\\puzink\\Documents\\testImporter\\" + "tableWith20Rows.txt");
+        RowRepository repository = new RowRepository(rowDao);
+        TableRepository tableRepository = new TableRepository(tableDao);
 //        File file = getFile();
         try(XmlParser parser = new XmlLazyParser(file, new XmlElementParserImpl())){
             XmlTableReaderImpl tableReader = new XmlTableReaderImpl(parser);
-            Importer importer = new Importer(dao, tableReader);
+            XmlImporter xmlImporter = new XmlImporter(repository, tableRepository);
             long start = System.nanoTime();
-            System.out.println(importer.importRows());
+            System.out.println(xmlImporter.importUniqueTableRows(tableReader));
             System.out.println("Time = " + (System.nanoTime() - start));
         }
 

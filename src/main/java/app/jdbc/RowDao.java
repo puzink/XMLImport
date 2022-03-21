@@ -1,7 +1,6 @@
 package app.jdbc;
 
 import app.table.Column;
-import app.table.DataType;
 import app.table.Row;
 
 import java.sql.*;
@@ -9,15 +8,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class DAO {
+public class RowDao {
 
     private final Connection conn;
 
-    public DAO(String url, String user, String password) throws SQLException {
+    public RowDao(String url, String user, String password) throws SQLException {
         conn = DriverManager.getConnection(url, user, password);
     }
 
-    public DAO(Connection conn){
+    public RowDao(Connection conn){
         this.conn = conn;
     }
 
@@ -54,39 +53,13 @@ public class DAO {
         return 0;
     }
 
-    public List<Column> getTableColumns(String tableName) {
 
-        String query = "select column_name, data_type from information_schema.columns where table_name = ?";
-        try(PreparedStatement preparedStatement = conn.prepareStatement(query)){
-            List<Column> columns = new ArrayList<>();
-            preparedStatement.setString(1, tableName);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            while(resultSet.next()){
-                String colName = resultSet.getString("column_name");
-                String strType = resultSet.getString("data_type");
-                DataType type = DataType.getBySqlType(strType)
-                                .orElseThrow(() -> new IllegalArgumentException("This data type is not supported: " + strType));
-                columns.add(new Column(colName, type));
-            }
-            return columns;
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return null;
-    }
-
-    public List<Boolean> hasDuplicate(List<Row> rows, String tableName, List<Column> uniqueColumns) {
+    public List<Boolean> hasDuplicateRow(List<Row> rows, String tableName, List<Column> uniqueColumns) {
 
         StringBuilder query = new StringBuilder()
                 .append("select case exists(select * from ").append(tableName).append(" where ");
         List<String> columnsComparisons = new ArrayList<>();
         for(Column uniqueCol : uniqueColumns){
-//            StringBuilder columnComparison = new StringBuilder();
-//            columnComparison.append("((").append("(").append(tableName).append(".").append(uniqueCol.getName())
-//                    .append(" is null)::integer + (? is null)::integer = 2").append(")");
-//            columnComparison.append(" or ");
-//            columnComparison.append("( ").append(tableName).append(".").append(uniqueCol.getName()).append(" = ? ").append("))");
 
             String columnComparison = String.format("(((%s.%s is null)::integer + (? is null)::integer = 2) " +
                     " or " +

@@ -62,5 +62,14 @@ public class TestXmlElementParserImpl {
         Assertions.assertTrue(elementParser.parseAttributes(str).isEmpty());
     }
 
+    @Test
+    public void testAttributeUniqueness(){
+        String str = "attr = \"1\" attr2 = \"abs\" \n attr = \"hd\"";
+        Assertions.assertThrows(XmlElementParseException.class,
+                ()->elementParser.parseAttributes(str),
+                "Duplicate attribute 'attr'."
+        );
+    }
+
 
 }

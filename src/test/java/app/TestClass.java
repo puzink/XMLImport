@@ -1,13 +1,74 @@
 package app;
 
+import app.service.imports.XmlImporter;
+import org.junit.jupiter.api.Test;
+
+import java.sql.*;
+import java.util.concurrent.atomic.AtomicLong;
+
 public class TestClass {
 
-//    private Connection getConnection() throws SQLException {
-//        String url = "jdbc:postgresql://localhost:5432/test";
-//        String user = "postgres";
-//        String pass = "chronit53142";
-//        return DriverManager.getConnection(url, user, pass);
-//    }
+    @Test
+    public void testSettings(){
+        XmlImporter.Settings sett = XmlImporter.Settings.builder().build();
+        System.out.println();
+    }
+
+    @Test
+    public void testAtomicLong() throws InterruptedException {
+        AtomicLong res = new AtomicLong();
+
+        Runnable increment = () -> {
+            StringBuilder str = new StringBuilder();
+            str.append(res.get() + "\n");
+            res.getAndAdd(1);
+            str.append(res.get() + "\n");
+            str.append("---");
+            System.out.println(str.toString());
+        };
+        for(int i = 0; i<10;++i){
+            new Thread(increment).start();
+        }
+
+
+        System.out.println("Result = " + res.get());
+
+        Thread.sleep(1000);
+        System.out.println("Result = " + res.get());
+    }
+
+
+    @Test
+    public void test() throws SQLException, NoSuchMethodException {
+//        TestClass.class.getMethod("test").
+        StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
+//        stackTraceElements[stackTraceElements.length-1];
+//        Thread.currentThread().
+
+        Connection conn = getConnection();
+        conn.setAutoCommit(false);
+        PreparedStatement statement = conn.prepareStatement("select * from uniq_nums");
+        ResultSet resultSet = statement.executeQuery();
+        while(resultSet.next()){
+            System.out.println(resultSet.getInt(1));
+        }
+
+        statement = conn.prepareStatement("insert into uniq_nums values (?)");
+        statement.setInt(1, 555);
+        System.out.println(statement.executeUpdate());
+
+        conn.commit();
+        resultSet.close();
+        statement.close();
+        conn.close();
+    }
+
+    private Connection getConnection() throws SQLException {
+        String url = "jdbc:postgresql://localhost:5432/test";
+        String user = "postgres";
+        String pass = "chronit53142";
+        return DriverManager.getConnection(url, user, pass);
+    }
 //
 //    @Test
 //    public void test() throws IOException, SQLException, InterruptedException {

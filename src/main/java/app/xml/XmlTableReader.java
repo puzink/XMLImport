@@ -7,7 +7,7 @@ import java.io.IOException;
 /**
  * Интерфейс для считывания строк(наборов пар ключ-значение {@link Row}) таблицы из xml-файла.
  */
-public interface XmlTableReader {
+public interface XmlTableReader extends AutoCloseable{
 
     /**
      * Возвращает узел, соответствующий корневому элементу файла.

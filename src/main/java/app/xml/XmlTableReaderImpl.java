@@ -183,4 +183,9 @@ public class XmlTableReaderImpl implements XmlTableReader {
         return node;
     }
 
+
+    @Override
+    public void close() throws Exception {
+        xmlParser.close();
+    }
 }

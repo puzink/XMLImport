@@ -19,7 +19,7 @@ import java.io.IOException;
  * </table>
  * В примере выше будут прочитаны узлы в следующем порядке: table->row->cell->column->field.
  **/
-public interface XmlParser extends Closeable {
+public interface XmlParser extends AutoCloseable {
 
     /**
      * Проверяет, есть ли непосещенные узлы в xml-файле.

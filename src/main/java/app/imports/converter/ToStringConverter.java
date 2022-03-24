@@ -1,4 +1,4 @@
-package app.service.converter;
+package app.imports.converter;
 
 /**
  * Конвертер-пустышка, который ничего не делает со строкой.

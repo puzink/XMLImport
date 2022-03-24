@@ -1,8 +1,8 @@
 package app.repository;
 
-import app.jdbc.TableDao;
+import app.dao.TableDao;
 import app.table.Column;
-import app.utils.ThreadConnectionPool;
+import app.transaction.ThreadConnectionPool;
 
 import java.sql.SQLException;
 import java.util.List;

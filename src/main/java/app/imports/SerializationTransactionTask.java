@@ -1,6 +1,6 @@
-package app.service.imports;
+package app.imports;
 
-import app.utils.ThreadTransactionManager;
+import app.transaction.ThreadTransactionManager;
 
 import java.sql.Connection;
 import java.sql.SQLException;

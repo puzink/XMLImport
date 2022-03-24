@@ -1,6 +1,6 @@
-package app.jdbc;
+package app.dao;
 
-import app.utils.ThreadConnectionPool;
+import app.transaction.ThreadConnectionPool;
 
 import java.sql.Connection;
 import java.sql.SQLException;

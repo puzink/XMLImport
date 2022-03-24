@@ -1,4 +1,4 @@
-package app.service.imports;
+package app.imports;
 
 import app.table.Column;
 import app.table.Table;

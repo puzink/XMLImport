@@ -1,6 +1,6 @@
 package app;
 
-import app.service.imports.XmlImporter;
+import app.imports.XmlImporter;
 import org.junit.jupiter.api.Test;
 
 import java.sql.*;

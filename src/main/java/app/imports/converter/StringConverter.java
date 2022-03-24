@@ -1,4 +1,4 @@
-package app.service.converter;
+package app.imports.converter;
 
 /**
  * Интерфейс для преобразования строк в объект необходимого типа.

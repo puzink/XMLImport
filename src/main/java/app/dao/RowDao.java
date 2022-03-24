@@ -1,4 +1,4 @@
-package app.jdbc;
+package app.dao;
 
 import app.table.Column;
 import app.table.Row;

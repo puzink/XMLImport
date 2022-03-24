@@ -1,12 +1,13 @@
-package app.service.imports;
+package app.imports;
 
+import app.imports.converter.StringConverter;
 import app.repository.RowRepositoryImpl;
 import app.repository.TableRepositoryImpl;
 import app.table.Column;
 import app.table.Row;
 import app.table.Table;
-import app.service.converter.ConverterFactory;
-import app.utils.ThreadTransactionManagerImpl;
+import app.imports.converter.ConverterFactory;
+import app.transaction.ThreadTransactionManagerImpl;
 import app.xml.Attribute;
 import app.xml.Node;
 import app.xml.XmlTableReader;
@@ -299,7 +300,7 @@ public class XmlImporter{
      * @param row          - строка
      * @param tableColumns - столбцы, для которых необходимо преобразовать значения
      * @return новая строка с преобразованными значениями
-     * @see app.service.converter.StringConverter
+     * @see StringConverter
      * @see app.table.DataType
      */
     private Row convertRowValues(Row row, List<Column> tableColumns) {

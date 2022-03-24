@@ -1,9 +1,8 @@
-package app.service.converter;
+package app.imports.converter;
 
 import app.table.DataType;
 
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.Map;
 
 public class ConverterFactory {

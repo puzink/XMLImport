@@ -1,4 +1,4 @@
-package app.jdbc;
+package app.dao;
 
 public interface Dao{
 }

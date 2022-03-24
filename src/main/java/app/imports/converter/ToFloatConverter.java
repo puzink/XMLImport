@@ -1,4 +1,4 @@
-package app.service.converter;
+package app.imports.converter;
 
 /**
  * Конвертирует строку в {@link Float}.

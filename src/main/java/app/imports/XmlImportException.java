@@ -1,4 +1,4 @@
-package app.service.imports;
+package app.imports;
 
 /**
  * Сигнализирует о возникновении ошибки при импорте данных из xml-файла.

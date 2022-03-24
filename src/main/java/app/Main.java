@@ -1,11 +1,14 @@
 package app;
 
+import app.dao.RowDao;
+import app.dao.RowDaoImpl;
+import app.dao.TableDaoImpl;
 import app.jdbc.*;
 import app.repository.RowRepositoryImpl;
 import app.repository.TableRepositoryImpl;
-import app.service.imports.XmlImporter;
-import app.utils.ThreadConnectionPool;
-import app.utils.ThreadTransactionManagerImpl;
+import app.imports.XmlImporter;
+import app.transaction.ThreadConnectionPool;
+import app.transaction.ThreadTransactionManagerImpl;
 import app.xml.*;
 
 import java.io.File;

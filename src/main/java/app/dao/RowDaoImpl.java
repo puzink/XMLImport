@@ -1,9 +1,9 @@
-package app.jdbc;
+package app.dao;
 
 import app.table.Column;
 import app.table.Row;
 import app.utils.DbUtils;
-import app.utils.ThreadConnectionPool;
+import app.transaction.ThreadConnectionPool;
 
 import java.sql.*;
 import java.util.ArrayList;

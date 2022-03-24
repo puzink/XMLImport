@@ -1,4 +1,4 @@
-package app.utils;
+package app.transaction;
 
 import lombok.Getter;
 

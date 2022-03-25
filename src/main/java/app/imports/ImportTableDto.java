@@ -16,10 +16,12 @@ import java.util.List;
 public class ImportTableDto {
 
     private Table table;
+
     /**
      * Набор уникальных столбцов.
      */
     private List<Column> uniqueColumns;
+
     /**
      * Набор столбцов, по которым будет происходить вставка строк.
      */

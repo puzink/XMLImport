@@ -1,6 +1,6 @@
 package app.repository;
 
-import app.transaction.ThreadConnectionPool;
+import app.imports.transaction.ThreadConnectionPool;
 
 public abstract class AbstractRepository implements Repository{
     protected final ThreadConnectionPool connectionPool;

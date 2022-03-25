@@ -1,6 +1,6 @@
 package app.imports;
 
-import app.transaction.ThreadTransactionManager;
+import app.imports.transaction.ThreadConnectionTransactionManager;
 
 import java.sql.SQLException;
 import java.sql.SQLRecoverableException;
@@ -18,13 +18,13 @@ public abstract class TransactionalTask<T> implements Callable<T> {
     /**
      * Управляет транзакцией.
      */
-    private final ThreadTransactionManager tx;
+    private final ThreadConnectionTransactionManager tx;
     /**
      * уровень изоляции транзакции
      */
     private final int isolationLevel;
 
-    public TransactionalTask(ThreadTransactionManager tx, int isolationLevel) {
+    public TransactionalTask(ThreadConnectionTransactionManager tx, int isolationLevel) {
         this.tx = tx;
         this.isolationLevel = isolationLevel;
     }

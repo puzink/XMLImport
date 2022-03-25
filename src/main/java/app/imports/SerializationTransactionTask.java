@@ -1,22 +1,32 @@
 package app.imports;
 
-import app.transaction.ThreadTransactionManager;
+import app.imports.transaction.ThreadConnectionTransactionManager;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Objects;
 
+/**
+ * Задача, исполняющаяся в транзакции {@link java.sql.Connection}
+ *      с уровнем изоляции {@link Connection#TRANSACTION_SERIALIZABLE}.
+ * @param <T> - результат задачи
+ * @see TransactionalTask
+ */
 public abstract class SerializationTransactionTask<T> extends TransactionalTask<T> {
 
-    private static final String SERIALIZATION_FAILURE = "40001";
+    /**
+     * Sql state ошибки транзакции с уровнем изоляции {@link Connection#TRANSACTION_SERIALIZABLE}.
+     * При её возникновении можно повторить транзакцию.
+     */
+    private static final String SERIALIZATION_FAILURE_SQL_STATE = "40001";
 
-    public SerializationTransactionTask(ThreadTransactionManager tx) {
+    public SerializationTransactionTask(ThreadConnectionTransactionManager tx) {
         super(tx, Connection.TRANSACTION_SERIALIZABLE);
     }
 
     @Override
     public boolean isRecoverable(SQLException e){
-        return Objects.equals(SERIALIZATION_FAILURE, e.getSQLState());
+        return Objects.equals(SERIALIZATION_FAILURE_SQL_STATE, e.getSQLState());
     }
 
 }

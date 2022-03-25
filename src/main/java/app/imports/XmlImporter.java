@@ -7,7 +7,7 @@ import app.table.Column;
 import app.table.Row;
 import app.table.Table;
 import app.imports.converter.ConverterFactory;
-import app.transaction.ThreadTransactionManagerImpl;
+import app.imports.transaction.ThreadConnectionTransactionManagerImpl;
 import app.xml.Attribute;
 import app.xml.Node;
 import app.xml.XmlTableReader;
@@ -34,18 +34,18 @@ public class XmlImporter{
 
     private final RowRepositoryImpl repository;
     private final TableRepositoryImpl tableRepository;
-    private final ThreadTransactionManagerImpl tx;
+    private final ThreadConnectionTransactionManagerImpl tx;
     private final Settings settings;
 
     public XmlImporter(RowRepositoryImpl repository,
                        TableRepositoryImpl tableRepository,
-                       ThreadTransactionManagerImpl tx) {
+                       ThreadConnectionTransactionManagerImpl tx) {
         this(repository, tableRepository, tx, Settings.builder().build());
     }
 
     public XmlImporter(RowRepositoryImpl repository,
                        TableRepositoryImpl tableRepository,
-                       ThreadTransactionManagerImpl tx,
+                       ThreadConnectionTransactionManagerImpl tx,
                        Settings settings) {
         this.repository = repository;
         this.tableRepository = tableRepository;
@@ -85,7 +85,8 @@ public class XmlImporter{
      *      или поток был прерван из ожидания окончания работы executor-а:
      *      {@link #shutdownExecutorAndWaitCompletion(ExecutorService, long)}.
      * @throws XmlImportException - если неправильно заданы атрибуты таблицы
-     * @throws SQLException - если невозможно соединиться с БД или указанной таблицы не существует
+     * @throws SQLException - если невозможно соединиться с БД, указанной таблицы не существует
+     *                      либо произошла ошибка во время вставки строк в БД
      * @throws IllegalArgumentException - если заданы неправильные настройки
      */
     public long importUniqueTableRows(XmlTableReader tableReader, Settings settings)

@@ -7,8 +7,8 @@ import app.jdbc.*;
 import app.repository.RowRepositoryImpl;
 import app.repository.TableRepositoryImpl;
 import app.imports.XmlImporter;
-import app.transaction.ThreadConnectionPool;
-import app.transaction.ThreadTransactionManagerImpl;
+import app.imports.transaction.ThreadConnectionPool;
+import app.imports.transaction.ThreadConnectionTransactionManagerImpl;
 import app.xml.*;
 
 import java.io.File;
@@ -60,7 +60,7 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
         ThreadConnectionPool connectionPool = getConnectionPool();
-        ThreadTransactionManagerImpl tx = new ThreadTransactionManagerImpl(connectionPool);
+        ThreadConnectionTransactionManagerImpl tx = new ThreadConnectionTransactionManagerImpl(connectionPool);
 
         RowDao simpleRowDao = new RowDaoImpl(connectionPool);
         TableDaoImpl simpleTableDao = new TableDaoImpl(connectionPool);

@@ -2,7 +2,7 @@ package app.repository;
 
 import app.dao.TableDao;
 import app.table.Column;
-import app.transaction.ThreadConnectionPool;
+import app.imports.transaction.ThreadConnectionPool;
 
 import java.sql.SQLException;
 import java.util.List;

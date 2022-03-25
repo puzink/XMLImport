@@ -48,7 +48,7 @@ public class RowRepositoryImpl extends AbstractRepository implements RowReposito
      * @return кол-во вставленных строк
      */
     public int insertRows(List<Row> rows, List<Column> rowColumns, String tableName) throws SQLException {
-        return rowDao.insertRows(rows, rowColumns, tableName);
+        return rowDao.insertRowsAsPossible(rows, rowColumns, tableName);
     }
 
     /**

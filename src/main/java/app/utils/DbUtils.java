@@ -1,14 +1,22 @@
 package app.utils;
 
+/**
+ * Вспомогательный класс, содержащий методы для работы с СУБД.
+ */
 public class DbUtils {
 
-    public static void close(AutoCloseable closeable){
-        if(closeable == null){
+    /**
+     * Закрывает ресурс, если он существует(не null).
+     * Если во время закрытия произошла ошибка, она выводиться на консоль.
+     * @param resource
+     */
+    public static void closeQuietly(AutoCloseable resource){
+        if(resource == null){
             return;
         }
 
         try{
-            closeable.close();
+            resource.close();
         } catch (Exception e){
             e.printStackTrace();
         }

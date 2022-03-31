@@ -11,9 +11,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-/**
- * TODO
- */
 public class RowRepositoryImpl extends AbstractRepository implements RowRepository {
 
     public final RowDao rowDao;
@@ -25,14 +22,17 @@ public class RowRepositoryImpl extends AbstractRepository implements RowReposito
     }
 
     /**
-     * Вставляет уникальные строки в БД.
-     * Уникальность строки определяется сравнением значений
-     *          по уникальным столбцам(по null тоже сравниваются).
-     * @param rows - строки для вставки
-     * @param tableName - имя таблицы в БД
-     * @param rowColumns - в таблицу будут вставляться значения строк только по этим столбцам
-     * @param uniqueColumns - столбцы, по которым определяются дубли
+     * Вставляет уникальные строки по указанным столбцам в таблицу.
+     * Уникальность строки проверяется сравнением значений по столбцам вплоть до null:
+     *      строки {null, 2} и {null, 2} равны.
+     * Если строку вставить нельзя: нарушает ограничение и т.д. -
+     *      она пропускается(on conflict do nothing).
+     * @param rows строки, которые необходимо вставить
+     * @param rowColumns столбцы, по которым происходит вставка строк
+     * @param uniqueColumns столбцы, по которым определяется уникальность строк
+     * @param tableName имя таблицы
      * @return кол-во вставленных строк
+     * @throws SQLException если произошла ошибка во время вставки строк
      */
     public int insertUniqueRows(List<Row> rows, List<Column> rowColumns,
                                 List<Column> uniqueColumns, String tableName) throws SQLException {
@@ -41,15 +41,19 @@ public class RowRepositoryImpl extends AbstractRepository implements RowReposito
     }
 
     /**
-     * Вставляет строки в БД.
-     * @param rows - строки для вставки
-     * @param tableName - имя таблицы в БД
-     * @param rowColumns - в таблицу будут вставляться значения строк только по этим столбцам
+     * Вставляет строки по указанным столбцам в таблицу.
+     * Если строку вставить нельзя: нарушает ограничение и т.д. -
+     *      она пропускается(on conflict do nothing).
+     * @param rows строки, которые необходимо вставить
+     * @param rowColumns столбцы, по которым происходит вставка строк
+     * @param tableName имя таблицы
      * @return кол-во вставленных строк
+     * @throws SQLException если произошла ошибка во время вставки строк
      */
     public int insertRows(List<Row> rows, List<Column> rowColumns, String tableName) throws SQLException {
         return rowDao.insertRowsAsPossible(rows, rowColumns, tableName);
     }
+
 
     /**
      * Возвращает список строк, дубликатов которых нет в таблице и в самом списке.

@@ -1,6 +1,7 @@
 package app.imports;
 
 import app.imports.converter.StringConverter;
+import app.imports.transaction.SerializationTransactionTask;
 import app.repository.RowRepositoryImpl;
 import app.repository.TableRepositoryImpl;
 import app.table.Column;
@@ -103,7 +104,9 @@ public class XmlImporter{
 
             runTaskForInsert(convertedRows, importTableDto, insertedRowsCount, executor);
 
-            System.out.println("Read rows = " + readRows);
+            if(readRows % 1000 == 0){
+                System.out.println("Read rows = " + readRows);
+            }
             rows = readRows(settings.readRowSize, importTableDto, tableReader);
         }
 
@@ -114,15 +117,16 @@ public class XmlImporter{
 
     /**
      * Создаёт executor с заданными настройками.
-     * @param settings - настройки
+     * @param settings настройки
      * @return executor
      */
     private ExecutorService createExecutor(Settings settings) {
-        return new ThreadPoolExecutor(0, settings.threads,
+        return new BlockingExecutor(settings.threads, settings.threads,
                 0, TimeUnit.SECONDS,
-                new LinkedBlockingQueue<>(settings.taskQueueSize),
-                new ThreadPoolExecutor.CallerRunsPolicy()
+                new LinkedBlockingQueue<>(settings.taskQueueSize)
+//                new ThreadPoolExecutor.CallerRunsPolicy()
         );
+
     }
 
     /**
@@ -259,11 +263,9 @@ public class XmlImporter{
         List<Row> rows = new ArrayList<>();
         while (rows.size() < rowCount && (row = tableReader.readRow()) != null) {
             if (!Objects.equals(row.getValues().size(), importTableDto.getColumnsForInsert().size())) {
-                //TODO logging
                 continue;
             }
             if (!row.containsColumns(importTableDto.getColumnsForInsert())) {
-                //TODO logging
                 continue;
             }
             rows.add(row);
@@ -398,10 +400,10 @@ public class XmlImporter{
     }
 
     /**
-     * Заканчивает работу executor-а и ожидает окончания выполнения всех задач.
+     * Завершает работу executor-а и ожидает окончания выполнения всех задач.
      * @param executor
-     * @param timeToWait - время ожидания завершения работы executor-а
-     * @throws InterruptedException - если превышено время ожидания или ожидание прервано
+     * @param timeToWait время ожидания завершения работы executor-а
+     * @throws InterruptedException если превышено время ожидания или ожидание прервано
      */
     private void shutdownExecutorAndWaitCompletion(ExecutorService executor, long timeToWait)
             throws InterruptedException {
@@ -412,15 +414,30 @@ public class XmlImporter{
         }
     }
 
+
+    /**
+     * Настройки импортера.
+     */
     @Builder
     @Getter
     public static class Settings{
+
+        // Кол-во потоков, занимающихся вставкой строк в БД
         @Builder.Default
-        private int threads = 5;
+        private int threads = 1;
+
+        /**
+         * Время ожидания окончания работы потоков импортера после считывания всех строк из файла
+         * @see #shutdownExecutorAndWaitCompletion(ExecutorService, long)
+         */
         @Builder.Default
-        private long timeToWaitExecutorCompleting = 10_000L;
+        private long timeToWaitExecutorCompleting = Long.MAX_VALUE;
+        
+        // Размер считваемых строк за раз
         @Builder.Default
-        private int readRowSize = 50;
+        private int readRowSize = 100;
+
+        // Размер очереди executor-а
         @Builder.Default
         private int taskQueueSize = 20;
     }

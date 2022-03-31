@@ -1,10 +1,9 @@
 package app.imports.transaction;
 
-import java.io.Closeable;
+import app.DbConnection;
+
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -19,15 +18,11 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ThreadConnectionPool implements AutoCloseable {
 
     private final ConcurrentHashMap<Long, Connection> connectionPool;
-    private final String user;
-    private final String pass;
-    private final String url;
+    private final DbConnection dbConnection;
 
-    public ThreadConnectionPool(String username, String pass, String url) {
+    public ThreadConnectionPool(DbConnection dbConnection) {
         this.connectionPool = new ConcurrentHashMap<>();
-        this.user = username;
-        this.pass = pass;
-        this.url = url;
+        this.dbConnection = dbConnection;
     }
 
     /**
@@ -41,7 +36,7 @@ public class ThreadConnectionPool implements AutoCloseable {
         if(connectionPool.containsKey(threadId)){
            return connectionPool.get(threadId);
         }
-        Connection conn = DriverManager.getConnection(url,user,pass);
+        Connection conn = dbConnection.getConnection();
         connectionPool.put(threadId, conn);
         return conn;
     }

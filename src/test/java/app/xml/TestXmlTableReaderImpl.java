@@ -48,7 +48,7 @@ public class TestXmlTableReaderImpl {
     }
 
     @Test
-    public void testReadNotRowNode() throws IOException{
+    public void testReadNotRowNode(){
 
         Element tableOpen = new Element("table", new ArrayList<>(), ElementType.OPEN);
         Element idOpen = new Element("id", new ArrayList<>(), ElementType.OPEN);

@@ -1,6 +1,4 @@
-package app.imports;
-
-import app.imports.transaction.ThreadConnectionTransactionManager;
+package app.imports.transaction;
 
 import java.sql.SQLException;
 import java.sql.SQLRecoverableException;
@@ -13,7 +11,6 @@ import java.util.concurrent.Callable;
 public abstract class TransactionalTask<T> implements Callable<T> {
 
     private static final int DEFAULT_ATTEMPTS_COUNT = 100;
-
 
     /**
      * Управляет транзакцией.

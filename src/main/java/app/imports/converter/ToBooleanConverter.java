@@ -22,7 +22,7 @@ public class ToBooleanConverter extends NullableStringConverter<Boolean> {
             return false;
         }
         throw new ClassCastException(
-                String.format("Cannot convert string '%s' to the boolean type.", s)
+                String.format("Cannot convert string '%s' to boolean.", s)
         );
     }
 }

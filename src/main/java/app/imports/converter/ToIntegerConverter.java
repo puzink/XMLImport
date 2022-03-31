@@ -13,6 +13,12 @@ public class ToIntegerConverter extends NullableStringConverter<Integer> {
      */
     @Override
     public Integer convertNotNullString(String s) {
-        return Integer.valueOf(s.trim());
+        try{
+            return Integer.valueOf(s.trim());
+        }catch (Exception e){
+            throw new IllegalArgumentException(
+                    String.format("Cannot convert string '%s' to integer.", s)
+            );
+        }
     }
 }

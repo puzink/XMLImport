@@ -13,6 +13,12 @@ public class ToLongConverter extends NullableStringConverter<Long> {
      */
     @Override
     public Long convertNotNullString(String s) {
-        return Long.valueOf(s.trim());
+        try{
+            return Long.valueOf(s.trim());
+        }catch (Exception e){
+            throw new IllegalArgumentException(
+                    String.format("Cannot convert string '%s' to long.", s)
+            );
+        }
     }
 }

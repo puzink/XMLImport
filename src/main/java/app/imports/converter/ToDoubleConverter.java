@@ -13,6 +13,12 @@ public class ToDoubleConverter extends NullableStringConverter<Double> {
      */
     @Override
     public Double convertNotNullString(String s) {
-        return Double.valueOf(s.trim());
+        try{
+            return Double.valueOf(s.trim());
+        }catch (Exception e){
+            throw new IllegalArgumentException(
+                    String.format("Cannot convert string '%s' to double.", s)
+            );
+        }
     }
 }

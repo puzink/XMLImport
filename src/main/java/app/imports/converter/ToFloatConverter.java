@@ -13,6 +13,12 @@ public class ToFloatConverter extends NullableStringConverter<Float> {
      */
     @Override
     public Float convertNotNullString(String s) {
-        return Float.valueOf(s.trim());
+        try{
+            return Float.valueOf(s.trim());
+        }catch (Exception e){
+            throw new IllegalArgumentException(
+                    String.format("Cannot convert string '%s' to float.", s)
+            );
+        }
     }
 }
